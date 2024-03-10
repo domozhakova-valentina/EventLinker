@@ -3,6 +3,7 @@ from app.app import main_app
 from flask import render_template
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
+from form.createEvent_form import CreateForm
 import logging
 
 logger = logging.getLogger('waitress')
@@ -33,6 +34,15 @@ def register():
     if form.validate_on_submit():
         pass
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@main_app.route('/create_event', methods=['GET', 'POST'])
+def create_event():
+    '''Страница - форма создания мероприятия'''
+    form = CreateForm()
+    if form.validate_on_submit():
+        pass
+    return render_template('create_event.html', title='Создание мероприятия', form=form)
 
 
 if __name__ == '__main__':
