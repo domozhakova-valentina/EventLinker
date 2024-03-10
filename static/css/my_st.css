@@ -12,7 +12,3 @@
     background: var(--color1);
     background: linear-gradient(90deg, rgba(0,212,255,1) 0%, rgba(182,180,218,1) 100%, rgba(20,171,164,1) 100%);
 }
-
-.mb-150 {
-    margin-bottom: 150px;
-}
