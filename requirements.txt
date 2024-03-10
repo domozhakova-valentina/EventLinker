@@ -1,0 +1,14 @@
+aniso8601==9.0.1
+click==8.1.7
+colorama==0.4.6
+Flask==1.1.2
+Flask-JWT-Simple==0.0.3
+Flask-RESTful==0.3.8
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+PyJWT==2.8.0
+pytz==2024.1
+six==1.16.0
+waitress==2.1.2
+Werkzeug==1.0.1
