@@ -2,6 +2,7 @@ from waitress import serve
 from app.app import main_app
 from flask import render_template
 import logging
+from data import db_session
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
@@ -23,6 +24,8 @@ def login():
 def register():
     return render_template('register.html', title='Регистрация')
 
+'''Строчка. чтобы создать базу данных'''
+db_session.global_init("db/event_linker.db")
 
 if __name__ == '__main__':
     # main_app.run(port=8000, host='127.0.0.1', debug=True)

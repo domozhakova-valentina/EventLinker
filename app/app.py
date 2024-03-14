@@ -1,4 +1,5 @@
 from flask import Flask
+from sqlalchemy_imageattach.stores.fs import HttpExposedFileSystemStore
 
 
 class MyApp(Flask):
@@ -18,3 +19,6 @@ class MyApp(Flask):
 
 
 main_app = MyApp(__name__, static_folder="./../static")
+fs_store = HttpExposedFileSystemStore('userimages', 'images/')
+main_app.wsgi_app = fs_store.wsgi_middleware(main_app.wsgi_app)
+# последние две строчки нужны для возможности сохранять изображения
