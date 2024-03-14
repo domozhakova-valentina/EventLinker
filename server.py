@@ -45,6 +45,12 @@ def create_event():
     return render_template('create_event.html', title='Создание мероприятия', form=form)
 
 
+@main_app.route('/home_user', methods=['GET', 'POST'])
+def home_user():
+    '''Страница пользователя'''
+    return render_template('user_home.html', title='Страница пользователя')
+
+
 if __name__ == '__main__':
     # main_app.run(port=8000, host='127.0.0.1', debug=True)
     serve(main_app, host="127.0.0.1", port=8000)

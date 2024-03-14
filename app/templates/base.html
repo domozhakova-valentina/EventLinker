@@ -5,21 +5,10 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/css/fontello.css">
-    <link rel="stylesheet" href="static/css/my_st.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontello.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/my_st.css') }}">
     <title>{{ title }}</title>
-    <style>
-        .small-circle-icon {
-            width: 35px; /* устанавливаем ширину */
-            height: 35px; /* устанавливаем высоту */
-            border-radius: 50%; /* задаем скругленные углы для создания круглой формы */
-        }
-
-        .big-control {
-            height: 150px;
-        }
-    </style>
 </head>
 <body>
     <div>
@@ -53,7 +42,7 @@
                             <img src="static/img/test_icon_user.png" class="small-circle-icon" alt="Иконка">
                         </li>
                         <li class="nav-item ms-auto">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="/home_user">
                                 Пользователь
                             </a>
                         </li>
@@ -68,7 +57,7 @@
         <p class="float-end mb-1">
           <a href="#">В начало</a>
         </p>
-        <p class="mb-1">Приложение сделанное в рамках Яндекс Лицея - &copy; We.</p>
+        <p class="mb-1">Приложение сделанное в рамках Яндекс Лицея - &copy; 2024 EventLinker - We.</p>
         <p><span class="fw-bold">Создатели:</span> Гайдеек Иван Михайлович, Доможакова Валентина Ивановна, Афанасьева Дарья Сергеевна.</p>
       </div>
     </footer>
