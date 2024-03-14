@@ -36,6 +36,8 @@ def register():
         return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
+'''Строчка. чтобы создать базу данных'''
+db_session.global_init("db/event_linker.db")
 
 @main_app.route('/create_event', methods=['GET', 'POST'])
 def create_event():
