@@ -5,6 +5,7 @@ from sqlalchemy_imageattach.stores.fs import HttpExposedFileSystemStore
 class MyApp(Flask):
     def __init__(self, *args, **kwargs):
         super(MyApp, self).__init__(*args, **kwargs)
+        self.config['SECRET_KEY'] = '23vghtklbn4hj8900'
         # self.json_encoder = MyJSONEncoder
         # self.user_repo = SqliteUsersRepo("./db/redditclone.db")
         # # app.user_repo = InMemoryUsersRepo()
