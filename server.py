@@ -1,6 +1,6 @@
 from waitress import serve
 from app.app import main_app
-from flask import render_template
+from flask import render_template, redirect
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
@@ -24,7 +24,7 @@ def login():
     """Страница авторизация"""
     form = LoginForm()
     if form.validate_on_submit():
-        pass
+        return redirect('/')
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -33,7 +33,7 @@ def register():
     """Страница регистрации"""
     form = RegisterForm()
     if form.validate_on_submit():
-        pass
+        return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -42,14 +42,31 @@ def create_event():
     '''Страница - форма создания мероприятия'''
     form = CreateForm()
     if form.validate_on_submit():
-        pass
+        return redirect('/')
     return render_template('create_event.html', title='Создание мероприятия', form=form)
 
 
 @main_app.route('/home_user', methods=['GET', 'POST'])
 def home_user():
     '''Страница пользователя'''
-    return render_template('user_home.html', title='Страница пользователя')
+    return render_template('user_home.html', title='Ваш профиль')
+
+
+@main_app.route('/user', methods=['GET', 'POST'])
+def user():
+    '''Профиль на показ всем пользователям'''
+    return render_template('user.html', title='Профиль пользователя')
+
+
+@main_app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    form = RegisterForm()
+    form.submit.label.text = 'Изменить'
+    # данные сurrent_user предварительно тут записать в form
+    if form.validate_on_submit():
+        return redirect('/')
+    return render_template('edit_profile.html', title='Редактирование профиля', form=form)
+
 
 '''Строчка. чтобы создать базу данных'''
 db_session.global_init("db/event_linker.db")

@@ -15,6 +15,8 @@ class RegisterForm(FlaskForm):
     name = StringField("Your Name", validators=[DataRequired(message="Это поле является обязательным."),
                                                 Length(min=3, max=20,
                                                        message="Имя должно содержать от 3 до 20 символов.")])
-    about = TextAreaField('About you')  # краткое описание пользователя, не обязательно
+    about = TextAreaField('About you', default='Ничего не указано о пользователе')  # краткое описание пользователя, не обязательно
     photo = FileField('Avatar', default='...')  # иконка пользователя, если не укажет, то по умолчанию будет
+    # validators = [FileAllowed(['jpg', 'png', 'svg'],
+    #                           message='Принимаются только файлы с расширением .jpg, .png, .svg,')]
     submit = SubmitField('Register')

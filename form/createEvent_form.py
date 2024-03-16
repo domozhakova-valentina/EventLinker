@@ -5,6 +5,8 @@ from wtforms.validators import Length, DataRequired
 
 class CreateForm(FlaskForm):
     photo = FileField('Фотография события', default='...')  # фотография карточки, если не укажет, то по умолчанию будет
+    # validators = [FileAllowed(['.jpg', '.png'],
+    #                           message='Принимаются только файлы с расширением .jpg, .png')]
     mini_description = TextAreaField("Имя и вводное описание мероприятия:",
                                      validators=[DataRequired(message="Это поле является обязательным."),
                                                  Length(max=140, message='Слишком длинно')])
