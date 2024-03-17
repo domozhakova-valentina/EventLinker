@@ -60,12 +60,19 @@ def user():
 
 @main_app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
+    """Редактирование аккаунта пользователя"""
     form = RegisterForm()
     form.submit.label.text = 'Изменить'
     # данные сurrent_user предварительно тут записать в form
     if form.validate_on_submit():
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
+
+
+@main_app.route('/delete_user/<int:id>', methods=['GET', 'POST'])
+def delete_user(id):
+    '''Удаление пользователя'''
+    return redirect('/')
 
 
 '''Строчка. чтобы создать базу данных'''

@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed
 from wtforms import PasswordField, EmailField, SubmitField, StringField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
@@ -16,7 +17,7 @@ class RegisterForm(FlaskForm):
                                                 Length(min=3, max=20,
                                                        message="Имя должно содержать от 3 до 20 символов.")])
     about = TextAreaField('About you', default='Ничего не указано о пользователе')  # краткое описание пользователя, не обязательно
-    photo = FileField('Avatar', default='...')  # иконка пользователя, если не укажет, то по умолчанию будет
-    # validators = [FileAllowed(['jpg', 'png', 'svg'],
-    #                           message='Принимаются только файлы с расширением .jpg, .png, .svg,')]
+    photo = FileField('Avatar', default='...',
+                      validators=[FileAllowed(['jpg', 'png', 'svg'],
+                                              message='Принимаются файлы в расширение .jpg, .png и .svg'), ])  # иконка пользователя, если не укажет, то по умолчанию будет
     submit = SubmitField('Register')

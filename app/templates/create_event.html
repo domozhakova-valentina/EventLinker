@@ -2,7 +2,7 @@
 
 {% block content %}
     <section class="m-5">
-        <form action="" method="post" novalidate>
+        <form action="" method="post" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
           <div class="mb-3">
                 {{ form.mini_description.label(class="form-label")}}
@@ -26,6 +26,11 @@
           </div>
           <div class="mb-3">
               {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
+             {% for error in form.photo.errors %}
+             <div class="alert alert-danger" role="alert">
+             {{ error }}
+             </div>
+              {% endfor %}
           </div>
           {{ form.submit(type="submit", class="btn btn-primary") }}
         </form>
