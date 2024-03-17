@@ -1,6 +1,8 @@
 from waitress import serve
 from app.app import main_app
 from flask import render_template, redirect
+
+from form.addComment_form import AddComment
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
@@ -16,7 +18,16 @@ logger.setLevel(logging.DEBUG)
 # @main_app.route('/u/<path:path>')
 def root(path):
     '''Главная страница'''
-    return render_template('index.html', title='EventLinker')
+    data = {
+        'events': [
+            {'id': 1, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+            {'id': 2, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+            {'id': 3, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+            {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"}
+        ]
+    }  # пример использование, когда передаётся в html
+    return render_template('index.html', title='EventLinker', data=data)
 
 
 @main_app.route('/login', methods=['GET', 'POST'])
@@ -52,7 +63,7 @@ def home_user():
     return render_template('user_home.html', title='Ваш профиль')
 
 
-@main_app.route('/user', methods=['GET', 'POST'])
+@main_app.route('/user/<int:id>', methods=['GET', 'POST'])
 def user():
     '''Профиль на показ всем пользователям'''
     return render_template('user.html', title='Профиль пользователя')
@@ -73,6 +84,17 @@ def edit_profile():
 def delete_user(id):
     '''Удаление пользователя'''
     return redirect('/')
+
+
+@main_app.route('/event/<int:id>', methods=['GET', 'POST'])
+def event(id):
+    '''Просмотр события (мероприятия)'''
+    form = AddComment()
+    if form.validate_on_submit():
+        # добавление комментария и перезагрузка
+        return redirect(f'/event/{id}')
+    return render_template('event.html', form=form)
+
 
 
 '''Строчка. чтобы создать базу данных'''
