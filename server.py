@@ -8,26 +8,31 @@ from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
 import logging
 from data import db_session
+from form.search_form import SearchForm
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
 
 
-@main_app.route('/', defaults={'path': ''})
-# @main_app.route('/a/<path:path>')
-# @main_app.route('/u/<path:path>')
-def root(path):
+@main_app.route('/', methods=['GET', 'POST'])
+def root():
     '''Главная страница'''
-    data = {
-        'events': [
-            {'id': 1, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
-            {'id': 2, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
-            {'id': 3, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
-            {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-             "username": 'Название автора', "create_data": "время создания"}
-        ]
-    }  # пример использование, когда передаётся в html
-    return render_template('index.html', title='EventLinker', data=data)
+    form = SearchForm()  # форма поиска
+    if form.validate_on_submit():
+        text_search = form.search.data
+        # ищем вхождения строки в мини описание или название автора
+        data = {'events': []}
+    else:
+        data = {
+            'events': [
+                {'id': 1, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+                {'id': 2, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+                {'id': 3, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+                {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+                 "username": 'Название автора', "create_data": "время создания"}
+            ]
+        }  # пример использование, когда передаётся в html
+    return render_template('index.html', title='EventLinker', data=data, form=form)
 
 
 @main_app.route('/login', methods=['GET', 'POST'])
@@ -93,13 +98,11 @@ def event(id):
     if form.validate_on_submit():
         # добавление комментария и перезагрузка
         return redirect(f'/event/{id}')
-    return render_template('event.html', form=form)
+    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>')
 
-
-
-'''Строчка. чтобы создать базу данных'''
-db_session.global_init("db/event_linker.db")
 
 if __name__ == '__main__':
+    '''Строчка. чтобы создать базу данных'''
+    db_session.global_init("db/event_linker.db")
     # main_app.run(port=8000, host='127.0.0.1', debug=True)
     serve(main_app, host="127.0.0.1", port=8000)
