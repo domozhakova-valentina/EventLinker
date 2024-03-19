@@ -93,7 +93,7 @@ def home_user():
     return render_template('user_home.html', title='Страница пользователя')
 
 
-'''Строчка. чтобы создать базу данных'''
+'''Строчка, чтобы создать базу данных'''
 db_session.global_init("db/event_linker.db")
 
 if __name__ == '__main__':
