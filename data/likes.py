@@ -8,4 +8,3 @@ association_table = sqlalchemy.Table(
                       sqlalchemy.ForeignKey('user.id')),
     sqlalchemy.Column('event', sqlalchemy.Integer,
                       sqlalchemy.ForeignKey('event.id'))
-)
