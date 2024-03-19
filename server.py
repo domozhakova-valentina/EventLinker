@@ -1,13 +1,13 @@
+import flask
 from waitress import serve
 from app.app import main_app
 from flask import render_template, redirect
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, current_user
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
 from data.users import User
 from data.events import Event
-from data.comments import Comment
 import logging
 from data import db_session
 
@@ -16,6 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 login_manager = LoginManager()
 login_manager.init_app(main_app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
 
 
 @main_app.route('/', defaults={'path': ''})
@@ -45,7 +51,22 @@ def register():
     """Страница регистрации"""
     form = RegisterForm()
     if form.validate_on_submit():
-        pass
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Регистрация', form=form, message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', title='Регистрация', form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            name=form.name.data,
+            email=form.email.data,
+            about=form.about.data,
+            photo=flask.request.files.get('file', '')
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -56,11 +77,10 @@ def create_event():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         event = Event()
-        event.photo = form.photo.data
+        event.photo = flask.request.files.get('imagefile', '')
         event.mini_description = form.mini_description.data
         event.description = form.description.data
-        event.create_date = form.create_date.data
-        current_user.events.append(events)
+        current_user.events.append(event)
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
@@ -71,6 +91,7 @@ def create_event():
 def home_user():
     '''Страница пользователя'''
     return render_template('user_home.html', title='Страница пользователя')
+
 
 '''Строчка. чтобы создать базу данных'''
 db_session.global_init("db/event_linker.db")
