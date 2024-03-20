@@ -37,9 +37,30 @@
                                     </div>
                                     {% endfor %}
                                     {{ form.submit(type="submit", class="btn btn-primary") }}
-                                    <a class="btn text-green mt-3" style="margin-left: 30px;"><i
-                                            class="fa fa-thumbs-up"></i> лайков</a>
                                 </form>
+                                <button data-post-id="1" onclick="likePost(1)">Like</button>  <!--вместо 1 id события (мероприятия)-->
+                                <script>
+                                    function likePost(postId) {
+                                        fetch('/post/' + postId + '/like', { method: 'POST' })
+                                        .then(response => {
+                                            if (response.ok) {
+                                                console.log('Post liked successfully');
+                                                updateButton(postId);
+                                            } else {
+                                                console.error('Failed to like post');
+                                            }
+                                        });
+                                    }
+
+                                    function updateButton(postId) {
+                                        let button = document.querySelector('button[data-post-id="' + postId + '"]');
+                                        if (button.innerHTML === 'Like') {
+                                            button.innerHTML = 'Unlike';
+                                        } else {
+                                            button.innerHTML = 'Like';
+                                        }
+                                    }
+                                </script>  <!--скрипт для лайков-->
                             </div>
                         </div>
                     </div>
