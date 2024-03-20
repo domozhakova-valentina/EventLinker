@@ -7,12 +7,12 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy_imageattach.entity import Image, image_attachment
 
 
-class UserPicture(SqlAlchemyBase, Image):
-    '''Класс для добавления изображений'''
-
-    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('user.id'), primary_key=True)
-    user = orm.relationship('User')
-    __tablename__ = 'user_picture'
+# class UserPicture(SqlAlchemyBase, Image):
+#     '''Класс для добавления изображений'''
+#
+#     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('user.id'), primary_key=True)
+#     user = orm.relationship('User')
+#     __tablename__ = 'user_picture'
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
@@ -21,12 +21,13 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
-    photo = image_attachment('UserPicture')
+    photo = sqlalchemy.Column(sqlalchemy.LargeBinary)
     about = sqlalchemy.Column(sqlalchemy.String)
     email = sqlalchemy.Column(sqlalchemy.String, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-
     events = orm.relationship("Event", back_populates='user')
+
+    comments = orm.relationship("Comment", back_populates='user')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

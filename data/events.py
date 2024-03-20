@@ -6,19 +6,19 @@ from sqlalchemy_imageattach.entity import Image, image_attachment
 from .db_session import SqlAlchemyBase
 
 
-class EventPicture(SqlAlchemyBase, Image):
-    '''Класс для добавления изображений'''
-
-    event_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('event.id'), primary_key=True)
-    event = orm.relationship('Event')
-    __tablename__ = 'event_picture'
+# class EventPicture(SqlAlchemyBase, Image):
+#     '''Класс для добавления изображений'''
+#
+#     event_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('event.id'), primary_key=True)
+#     event = orm.relationship('Event')
+#     __tablename__ = 'event_picture'
 
 
 class Event(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'event'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    photo = image_attachment('EventPicture')
+    photo = sqlalchemy.Column(sqlalchemy.LargeBinary)
     mini_description = sqlalchemy.Column(sqlalchemy.String)
     description = sqlalchemy.Column(sqlalchemy.String)
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
@@ -26,3 +26,5 @@ class Event(SqlAlchemyBase, SerializerMixin):
 
     create_user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"))
     user = orm.relationship('User')
+
+    comments = orm.relationship("Comment", back_populates='event')
