@@ -7,4 +7,4 @@ association_table = sqlalchemy.Table(
     sqlalchemy.Column('user', sqlalchemy.Integer,
                       sqlalchemy.ForeignKey('user.id')),
     sqlalchemy.Column('event', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('event.id'))
+                      sqlalchemy.ForeignKey('event.id')))
