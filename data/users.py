@@ -27,6 +27,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     events = orm.relationship("Event", back_populates='user')
 
+    comments = orm.relationship("Comment", back_populates='user')
+
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
 
