@@ -26,3 +26,5 @@ class Event(SqlAlchemyBase, SerializerMixin):
 
     create_user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"))
     user = orm.relationship('User')
+
+    comments = orm.relationship("Comment", back_populates='event')

@@ -10,8 +10,8 @@ from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
 from data.users import User
 from data.events import Event
+from data.comments import Comment
 import logging
-from data import db_session
 from form.search_form import SearchForm
 from data import db_session
 
@@ -97,7 +97,8 @@ def create_event():
         db_sess = db_session.create_session()
         event = Event()
         file = flask.request.files.get('imagefile', '')
-        event.photo = file.read()
+        if file:
+            event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         current_user.events.append(event)
@@ -124,14 +125,35 @@ def edit_profile():
     """Редактирование аккаунта пользователя"""
     form = RegisterForm()
     form.submit.label.text = 'Изменить'
+    if request.method == "GET":
+        if current_user:
+            form.name.data = current_user.name
+            form.email.data = current_user.email
+            form.about.data = current_user.about
+            # сделать, чтобы отображалась аватарка
     if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        if user:
+            user.name = form.name.data
+            user.email = form.email.data
+            user.about = form.about.data
+            file = request.files.get('imagefile', '')
+            if file:
+                user.photo = file.read()
+            # подумать как быть с паролем
+            db_sess.commit()
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
 
 
 @main_app.route('/delete_user/<int:id>', methods=['GET', 'POST'])
 def delete_user(id):
-    '''Удаление пользователя'''
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    if user:
+        db_sess.delete(user)
+        db_sess.commit()
     return redirect('/')
 
 
@@ -140,7 +162,15 @@ def event(id):
     '''Просмотр события (мероприятия)'''
     form = AddComment()
     if form.validate_on_submit():
-        # добавление комментария и перезагрузка
+        db_sess = db_session.create_session()
+        event = db_sess.query(Event).filter(Event.id == id).first()
+        comment = Comment()
+        comment.text = form.text_comment.data
+        current_user.comments.append(comment)
+        event.comments.append(comment)
+        db_sess.merge(current_user)
+        db_sess.merge(event)
+        db_sess.commit()
         return redirect(f'/event/{id}')
     return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>')
 
