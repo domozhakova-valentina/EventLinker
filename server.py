@@ -1,9 +1,9 @@
 import flask
 from waitress import serve
 from app.app import main_app
-
+from flask import render_template, redirect, request
 from form.addComment_form import AddComment
-from flask import render_template, redirect, jsonify
+from flask import render_template, redirect
 from flask_login import LoginManager, login_user, current_user
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
@@ -11,6 +11,7 @@ from form.createEvent_form import CreateForm
 from data.users import User
 from data.events import Event
 import logging
+from data import db_session
 from form.search_form import SearchForm
 from data import db_session
 
@@ -59,6 +60,7 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html', message="Неправильный логин или пароль", form=form)
+        return redirect('/')
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -68,17 +70,18 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация', form=form, message="Пароли не совпадают")
+            return render_template('register.html', title='Регистрация', form=form)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form,
-                                   message="Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form, message="Такой пользователь уже есть")
         user = User(
             name=form.name.data,
             email=form.email.data,
-            about=form.about.data,
-            photo=flask.request.files.get('file', '')
+            about=form.about.data
         )
+        file = request.files.get('imagefile', '')
+        if file:
+            user.photo = file.read()
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -93,7 +96,8 @@ def create_event():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         event = Event()
-        event.photo = flask.request.files.get('imagefile', '')
+        file = flask.request.files.get('imagefile', '')
+        event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         current_user.events.append(event)
@@ -120,7 +124,6 @@ def edit_profile():
     """Редактирование аккаунта пользователя"""
     form = RegisterForm()
     form.submit.label.text = 'Изменить'
-    # данные сurrent_user предварительно тут записать в form
     if form.validate_on_submit():
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
@@ -145,4 +148,5 @@ def event(id):
 if __name__ == '__main__':
     '''Строчка. чтобы создать базу данных'''
     db_session.global_init("db/event_linker.db")
+    # main_app.run(port=8000, host='127.0.0.1', debug=True)
     serve(main_app, host="127.0.0.1", port=8000)

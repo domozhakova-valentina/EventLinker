@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
+                    {{ form.photo.label }}: <input type="file" class="bg-gradient-b" id="imagefile" name="imagefile">
                    {% for error in form.photo.errors %}
                    <div class="alert alert-danger" role="alert">
                    {{ error }}
@@ -70,12 +70,10 @@
                 <div class="d-flex justify-content-center">
                   {{ form.submit(type="submit", class="btn btn-success btn-block btn-lg gradient-custom-4 text-body") }}
                 </div>
-
+                <div>{{ message }}</div>
                 <p class="text-center text-muted mt-5 mb-0">У вас уже есть учетная запись? <a href="/login"
                     class="fw-bold text-body"><u>Войти</u></a></p>
-
               </form>
-
             </div>
           </div>
         </div>
