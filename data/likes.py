@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 import sqlalchemy
-from db_session import SqlAlchemyBase
+from .db_session import SqlAlchemyBase
 
 association_table = sqlalchemy.Table(
     'likes_user_to_events',
