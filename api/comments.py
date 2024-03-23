@@ -29,7 +29,6 @@ class CommentResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('text', required=True)
         comment.text = parser.parse_args()['text']
-        comment.create_date = datetime.now()
         session.commit()
         return jsonify({'success': 'OK'})
 
