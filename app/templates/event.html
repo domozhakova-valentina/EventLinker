@@ -14,6 +14,11 @@
                                     <span>id: его индификатор</span></h5>  <!--в href с индификатором передаётся-->
                                 <p class="text-muted">Время создания</p>
                             </div>
+                            <div class="lidi">
+                                <button id="like-btn" class="btn btn-secondary" data-post-id="{{ event_id }}"><i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-thumbs-up"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></i></button>
+                                <!-- Выше кнопка лайка с иконкой -->
+                                <p style="font-size: 14px;">Likes: <span id="likes" style="font-weight: bold;">{{ likes }}</span></p>  <!-- количество лайков, аккуратно, тут лучше ничего не переписывать -->
+                            </div>
                             <div class="line-divider"></div>
                             <div class="post-text">
                                 <p>Большое описание события.{{ test|safe }} </p>
@@ -38,29 +43,6 @@
                                     {% endfor %}
                                     {{ form.submit(type="submit", class="btn btn-primary") }}
                                 </form>
-                                <button data-post-id="1" onclick="likePost(1)">Like</button>  <!--вместо 1 id события (мероприятия)-->
-                                <script>
-                                    function likePost(postId) {
-                                        fetch('/post/' + postId + '/like', { method: 'POST' })
-                                        .then(response => {
-                                            if (response.ok) {
-                                                console.log('Post liked successfully');
-                                                updateButton(postId);
-                                            } else {
-                                                console.error('Failed to like post');
-                                            }
-                                        });
-                                    }
-
-                                    function updateButton(postId) {
-                                        let button = document.querySelector('button[data-post-id="' + postId + '"]');
-                                        if (button.innerHTML === 'Like') {
-                                            button.innerHTML = 'Unlike';
-                                        } else {
-                                            button.innerHTML = 'Like';
-                                        }
-                                    }
-                                </script>  <!--скрипт для лайков-->
                             </div>
                         </div>
                     </div>
