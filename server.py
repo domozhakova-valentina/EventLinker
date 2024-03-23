@@ -1,7 +1,7 @@
 import flask
 from waitress import serve
 from app.app import main_app
-from flask import render_template, redirect, request
+from flask import request, jsonify
 from form.addComment_form import AddComment
 from flask import render_template, redirect
 from flask_login import LoginManager, login_user, current_user
@@ -60,7 +60,6 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html', message="Неправильный логин или пароль", form=form)
-        return redirect('/')
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -172,11 +171,28 @@ def event(id):
         db_sess.merge(event)
         db_sess.commit()
         return redirect(f'/event/{id}')
-    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>')
+    likes = 10
+    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>', likes=likes, event_id=id)
+
+
+likes = 10
+
+
+@main_app.route('/api/like/<int:post_id>', methods=['POST'])
+def like(post_id):
+    global likes
+    likes += 1
+    return jsonify({'likes': likes})
+
+
+@main_app.route('/api/unlike/<int:post_id>', methods=['DELETE'])
+def unlike(post_id):
+    global likes
+    likes -= 1
+    return jsonify({'likes': likes})
 
 
 if __name__ == '__main__':
     '''Строчка. чтобы создать базу данных'''
     db_session.global_init("db/event_linker.db")
-    # main_app.run(port=8000, host='127.0.0.1', debug=True)
     serve(main_app, host="127.0.0.1", port=8000)
