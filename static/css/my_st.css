@@ -102,3 +102,9 @@ img.profile-photo-sm {
     font-size: 12px;
     margin-left: 20px;
 }
+
+/** Стили для лайка **/
+.lidi {
+  float: right;
+  display: inline-block;
+}
