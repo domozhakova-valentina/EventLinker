@@ -5,9 +5,6 @@ from flask_restful import reqparse, abort, Resource
 
 from data import db_session
 from data.events import Event
-from data.likes import Like
-from api.users import abort_if_user_not_found
-from data.users import User
 
 
 def abort_if_event_not_found(event_id):
@@ -25,11 +22,20 @@ class EventResource(Resource):
         return jsonify({'event': event.to_dict(
             only=('id', 'mini_description', 'description', 'create_date', 'num_likes', 'create_user'))})
 
-    # непонятно, что конкретно менять, не делала пока
-    def post(self, event_id):
+    def post(self, event_id):  # редактирование события
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
+        parser = reqparse.RequestParser()
+        parser.add_argument('mini_description', required=True)
+        parser.add_argument('description', required=True)
+        args = parser.parse_args()
+
+        events_args = ['mini_description', 'description']
+        for arg in events_args:
+            if args[arg] is not None:
+                setattr(event, arg, args[arg])
+
         session.commit()
         return jsonify({'success': 'OK'})
 
@@ -40,28 +46,6 @@ class EventResource(Resource):
         session.delete(event)
         session.commit()
         return jsonify({'success': 'OK'})
-
-    def event_like(self, event_id, user_id):
-        abort_if_event_not_found(event_id)
-        abort_if_user_not_found(user_id)
-        session = db_session.create_session()
-        event = session.query(Event).get(event_id)
-        user = session.query(User).get(user_id)
-        # Проверяем, лайкнул ли уже пользователь событие
-        existing_like = Like.query.filter_by(event_id=event.id, user_id=user.id).first()
-        if existing_like:
-            # Если лайк уже существует, удаляем его
-            session.delete(existing_like)
-            event.num_likes -= 1
-            session.commit()
-            return jsonify({'message': 'Like removed successfully'})
-        else:
-            # Если лайка не существует, создаем новый
-            like = Like(event_id=event.id, user_id=user.id)
-            session.add(like)
-            event.num_likes += 1
-            session.commit()
-            return jsonify({'message': 'Event liked successfully'})
 
 
 class EventsListResource(Resource):
@@ -82,15 +66,14 @@ class EventsListResource(Resource):
         parser.add_argument('mini_description', required=True)
         parser.add_argument('description', required=True)
         parser.add_argument('create_user', required=True, type=int)
-        parser.add_argument('num_likes', required=True, type=int)
         args = parser.parse_args()
         session = db_session.create_session()
         event = Event()
         event.mini_description = args['mini_description']
         event.description = args['description']
         event.create_date = datetime.now()
+        event.num_likes = 0
         event.create_user = args['create_user']
-        event.num_likes = args['num_likes']
         session.add(event)
         session.commit()
         return jsonify({'id': event.id})
