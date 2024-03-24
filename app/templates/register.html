@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                    {{ form.photo.label }}: <input type="file" class="bg-gradient-b" id="imagefile" name="imagefile">
+                   {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
                    {% for error in form.photo.errors %}
                    <div class="alert alert-danger" role="alert">
                    {{ error }}

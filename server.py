@@ -4,7 +4,7 @@ from app.app import main_app
 from flask import request, jsonify
 from form.addComment_form import AddComment
 from flask import render_template, redirect
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from form.login_form import LoginForm
 from form.register_form import RegisterForm
 from form.createEvent_form import CreateForm
@@ -26,6 +26,14 @@ login_manager.init_app(main_app)
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@main_app.route('/logout')
+@login_required
+def logout():
+    '''Обработчик выхода пользователя'''
+    logout_user()
+    return redirect("/")
 
 
 @main_app.route('/', methods=['GET', 'POST'])
@@ -73,12 +81,14 @@ def register():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация', form=form, message="Такой пользователь уже есть")
+        if form.about.data.strip() == '':
+            form.about.data = form.about.description
         user = User(
             name=form.name.data,
             email=form.email.data,
             about=form.about.data
         )
-        file = request.files.get('imagefile', '')
+        file = form.photo.data
         if file:
             user.photo = file.read()
         user.set_password(form.password.data)
@@ -89,13 +99,14 @@ def register():
 
 
 @main_app.route('/create_event', methods=['GET', 'POST'])
+@login_required
 def create_event():
     '''Страница - форма создания мероприятия'''
     form = CreateForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         event = Event()
-        file = flask.request.files.get('imagefile', '')
+        file = form.photo.data
         if file:
             event.photo = file.read()
         event.mini_description = form.mini_description.data
@@ -107,37 +118,60 @@ def create_event():
     return render_template('create_event.html', title='Создание мероприятия', form=form)
 
 
-@main_app.route('/home_user', methods=['GET', 'POST'])
+@main_app.route('/events/<int:id_user>')
+def events(id_user):
+    '''Просмотр событий (мероприятий), созданных пользователем.'''
+    # из БД получаем события
+    data = {
+        'events': [
+            {'id': 1, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 2, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 3, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"}
+        ]
+    }  # пример использование, когда передаётся в html
+    username = 'Имя пользователя'  # потом поменять на объект User из БД
+    return render_template('events_user.html', title='Events', data=data, username=username)
+
+
+@main_app.route('/home_user')
+@login_required
 def home_user():
     '''Страница пользователя'''
     return render_template('user_home.html', title='Ваш профиль')
 
 
 @main_app.route('/user/<int:id>', methods=['GET', 'POST'])
-def user():
+def user(id):
     '''Профиль на показ всем пользователям'''
     return render_template('user.html', title='Профиль пользователя')
 
 
 @main_app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
 def edit_profile():
     """Редактирование аккаунта пользователя"""
     form = RegisterForm()
     form.submit.label.text = 'Изменить'
     if request.method == "GET":
-        if current_user:
-            form.name.data = current_user.name
-            form.email.data = current_user.email
-            form.about.data = current_user.about
-            # сделать, чтобы отображалась аватарка
+        form.name.data = current_user.name
+        form.email.data = current_user.email
+        form.about.data = current_user.about
+        form.photo.data = current_user.photo
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == current_user.id).first()
         if user:
+            if form.about.data.strip() == '':
+                form.about.data = form.about.description
             user.name = form.name.data
             user.email = form.email.data
             user.about = form.about.data
-            file = request.files.get('imagefile', '')
+            file = form.photo.data
             if file:
                 user.photo = file.read()
             # подумать как быть с паролем
@@ -147,6 +181,7 @@ def edit_profile():
 
 
 @main_app.route('/delete_user/<int:id>', methods=['GET', 'POST'])
+@login_required
 def delete_user(id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == id).first()
@@ -171,8 +206,10 @@ def event(id):
         db_sess.merge(event)
         db_sess.commit()
         return redirect(f'/event/{id}')
+    creator_user = object  # создатель события из БД
     likes = 10
-    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>', likes=likes, event_id=id)
+    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>',
+                           likes=likes, event_id=id, creator=creator_user)
 
 
 likes = 10

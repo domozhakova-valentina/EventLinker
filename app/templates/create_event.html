@@ -25,7 +25,7 @@
               <div class="form-text">Можете тут оставить свои контакты для связи. Возможно использовать теги html (например ссылка: &lt;a href="ссылка"&gt;текст&lt;/a&gt;).</div>
           </div>
           <div class="mb-3">
-              {{ form.photo.label }}: <input type="file" class="bg-gradient-b" id="imagefile" name="imagefile">
+             {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
              {% for error in form.photo.errors %}
              <div class="alert alert-danger" role="alert">
              {{ error }}
