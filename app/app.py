@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_restful import Api
 from sqlalchemy_imageattach.stores.fs import HttpExposedFileSystemStore
 from errors.handlers import errors
 from api.users import UserResource, UsersListResource

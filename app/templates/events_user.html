@@ -2,7 +2,7 @@
 
 {% block content %}
     <main>
-      <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ username }}</span>:</h1>
+      <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ user["user"]["name"] }}</span>:</h1>
       <div class="album py-5 bg-body-tertiary">
         {% if data['events'] %}
         <div class="container">

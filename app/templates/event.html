@@ -52,8 +52,8 @@
                     </div>
                     {% if current_user.is_authenticated and current_user.id == creator.id %}  <!--проверка на принадлежность события пользователю-->
                         <div class="lidi">
-                            <a class="btn btn-secondary btn-sm">Редактировать</a>
-                            <a class="btn btn-danger btn-sm">Удалить</a>
+                            <a class="btn btn-secondary btn-sm" href="/edit_event/{{ event_id }}">Редактировать</a>
+                            <a class="btn btn-danger btn-sm" href="/delete_event/{{ event_id }}">Удалить</a>
                         </div>
                     {% endif %}
                 </div>
