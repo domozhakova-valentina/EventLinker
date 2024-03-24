@@ -15,7 +15,11 @@
                                 <p class="text-muted">Время создания</p>
                             </div>
                             <div class="lidi">
-                                <button id="like-btn" class="btn btn-secondary" data-post-id="{{ event_id }}"><i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-thumbs-up"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></i></button>
+                                {% if current_user.is_authenticated %}
+                                    <button id="like-btn" class="btn btn-secondary" data-post-id="{{ event_id }}"><i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-thumbs-up"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></i></button>
+                                {% else %}
+                                    <cite style="font-size: 9px;">Авторизируйтесь,<br> чтобы ставить лайки!</cite>
+                                {% endif %}
                                 <!-- Выше кнопка лайка с иконкой -->
                                 <p style="font-size: 14px;">Likes: <span id="likes" style="font-weight: bold;">{{ likes }}</span></p>  <!-- количество лайков, аккуратно, тут лучше ничего не переписывать -->
                             </div>
@@ -46,6 +50,12 @@
                             </div>
                         </div>
                     </div>
+                    {% if current_user.is_authenticated and current_user.id == creator.id %}  <!--проверка на принадлежность события пользователю-->
+                        <div class="lidi">
+                            <a class="btn btn-secondary btn-sm">Редактировать</a>
+                            <a class="btn btn-danger btn-sm">Удалить</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

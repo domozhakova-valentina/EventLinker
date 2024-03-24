@@ -17,8 +17,8 @@
               </a>
             </div>
             <div class="ms-3" style="margin-top: 130px;">
-              <h5>Имя пользователя</h5>
-              <p>ID: пользователя из бд</p>
+              <h5>{{ current_user.name }}</h5>
+              <p>ID: {{ current_user.id }}</p>
             </div>
           </div>
           <div class="p-4 text-black" style="background-color: #f8f9fa;">
@@ -45,25 +45,25 @@
             <div class="mb-5">
               <p class="lead fw-normal mb-1">Email</p>
               <div class="p-2" style="background-color: #f8f9fa;">
-                <p class="font-italic mb-1">Его email</p>
+                <p class="font-italic mb-1">{{ current_user.email }}</p>
               </div>
             </div>
             <div class="mb-5">
               <p class="lead fw-normal mb-1">About</p>
               <div class="p-4" style="background-color: #f8f9fa;">
-                <p class="font-italic mb-1">Тут о пользователе, но может быть пусто, тогда надо проверку не надо делать, потому что по дефолту в form уже будет всё.</p>
+                <p class="font-italic mb-1">{{ current_user.about }}</p>
               </div>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <p class="lead fw-normal mb-0"><a href="#!" class="text-muted">Ваши созданные мероприятия</a></p>  <!--Опять же делаем условие если у него нет мероприятий, то этой силки нет-->
+              <p class="lead fw-normal mb-0"><a href="/events/{{ current_user.id }}" class="text-muted">Ваши созданные мероприятия</a></p>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-4">
               <a type="button" class="btn btn-danger center" data-mdb-ripple-color="dark"
-                  style="z-index: 1;" href="/login">  <!--надо как-то ещё продумать чтобы пользователь от логинелся-->
+                  style="z-index: 1;" href="/logout">
                   ВЫЙТИ
               </a>
               <a type="button" class="btn btn-danger center" data-mdb-ripple-color="dark"
-                  style="z-index: 1;" href="/delete_user/1">  <!--индекс будет передаваться через current_user-->
+                  style="z-index: 1;" href="/delete_user/{{ current_user.id }}">  <!--индекс будет передаваться через current_user-->
                   УДАЛИТЬ
               </a>
             </div>
