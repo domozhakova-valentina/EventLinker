@@ -1,5 +1,7 @@
 aniso8601==9.0.1
 blinker==1.7.0
+certifi==2024.2.2
+charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
 dnspython==2.6.1
@@ -7,7 +9,7 @@ email_validator==2.1.1
 Flask==3.0.2
 Flask-JWT-Simple==0.0.3
 Flask-Login==0.6.3
-Flask-RESTful==0.3.8
+Flask-RESTful==0.3.10
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
 greenlet==3.0.3
@@ -19,11 +21,13 @@ MarkupSafe==2.1.5
 pillow==10.2.0
 PyJWT==2.8.0
 pytz==2024.1
+requests==2.31.0
 six==1.16.0
 SQLAlchemy==2.0.28
 SQLAlchemy-ImageAttach==1.1.0
 SQLAlchemy-serializer==1.4.1
 typing_extensions==4.10.0
+urllib3==2.2.1
 waitress==2.1.2
 Wand==0.6.13
 Werkzeug==3.0.1

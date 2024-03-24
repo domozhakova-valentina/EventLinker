@@ -1,4 +1,3 @@
-import flask
 from waitress import serve
 from app.app import main_app
 from flask import request, jsonify
@@ -14,6 +13,7 @@ from data.comments import Comment
 import logging
 from form.search_form import SearchForm
 from data import db_session
+from requests import get, delete
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
@@ -134,8 +134,8 @@ def events(id_user):
              "username": 'Название автора', "create_data": "время создания"}
         ]
     }  # пример использование, когда передаётся в html
-    username = 'Имя пользователя'  # потом поменять на объект User из БД
-    return render_template('events_user.html', title='Events', data=data, username=username)
+    user = get(f'http://127.0.0.1:8000/api/v2/users/{id_user}').json()  # объект User из БД
+    return render_template('events_user.html', title='Events', data=data, user=user)
 
 
 @main_app.route('/home_user')
@@ -208,7 +208,7 @@ def event(id):
         return redirect(f'/event/{id}')
     creator_user = object  # создатель события из БД
     likes = 10
-    return render_template('event.html', form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>',
+    return render_template('event.html', title="Просмотр события (мероприятия)", form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>',
                            likes=likes, event_id=id, creator=creator_user)
 
 
@@ -227,6 +227,37 @@ def unlike(post_id):
     global likes
     likes -= 1
     return jsonify({'likes': likes})
+
+
+@main_app.route('/delete_event/<int:event_id>')
+@login_required
+def delete_event(event_id):
+    """Удаление события (мероприятия)"""
+    if delete(f'http://127.0.0.1:8000/api/v2/events/{event_id}').status_code == 200:
+        return redirect('/')
+    return redirect(f"/event/{id}")
+
+
+@main_app.route('/edit_event/<int:event_id>', methods=['GET', 'POST'])
+@login_required
+def edit_event(event_id):
+    """Страница редактирования события (мероприятия)"""
+    form = CreateForm()
+    form.submit.label.text = 'Изменить'
+    # дописать логику сохранения прошлых полей
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        event = Event()
+        file = form.photo.data
+        if file:
+            event.photo = file.read()
+        event.mini_description = form.mini_description.data
+        event.description = form.description.data
+        current_user.events.append(event)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('create_event.html', title='Редактирование мероприятия', form=form)
 
 
 if __name__ == '__main__':
