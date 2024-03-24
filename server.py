@@ -235,7 +235,7 @@ def delete_event(event_id):
     """Удаление события (мероприятия)"""
     if delete(f'http://127.0.0.1:8000/api/v2/events/{event_id}').status_code == 200:
         return redirect('/')
-    return redirect(f"/event/{id}")
+    return redirect(f"/event/{event_id}")
 
 
 @main_app.route('/edit_event/<int:event_id>', methods=['GET', 'POST'])
