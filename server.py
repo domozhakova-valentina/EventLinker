@@ -144,13 +144,16 @@ def events(id_user):
 @login_required
 def home_user():
     '''Страница пользователя'''
-    return render_template('user_home.html', title='Ваш профиль')
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    return render_template('user_home.html', title='Ваш профиль', metrics_user=metrics)
 
 
-@main_app.route('/user/<int:id>', methods=['GET', 'POST'])
-def user(id):
+@main_app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+def user(user_id):
     '''Профиль на показ всем пользователям'''
-    return render_template('user.html', title='Профиль пользователя')
+    user = get(f'http://{host}:{port}/api/v2/users/{user_id}').json()["user"]  # данные по пользователю
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
 @main_app.route('/edit_profile', methods=['GET', 'POST'])
