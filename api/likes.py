@@ -18,7 +18,7 @@ class LikeResource(Resource):
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
-        like = Like.query.filter_by(event_id=event.id)
+        like = Like.query.filter_by(event=event.id)
         session.add(like)
         event.num_likes += 1
         session.commit()
@@ -28,7 +28,7 @@ class LikeResource(Resource):
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
-        like = Like.query.filter_by(event_id=event.id)
+        like = Like.query.filter_by(event=event.id)
         session.delete(like)
         event.num_likes -= 1
         session.commit()

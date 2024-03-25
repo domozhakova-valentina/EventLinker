@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+    <div class="container py-5 h-100">
+        <div class="row">
+            <div class="col">
+                <div class="post-content">
+                    <div class="post-container">
+                        <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" alt="user" class="profile-photo-md pull-left">
+                        <div class="post-detail">
+                            <div class="user-info">
+                                <h5><a href="/user/{{ inf_event['create_user'] }}" class="profile-link">ИМЯ</a> <!--имя потом заменить на creator_user.name-->
+                                    <span>id: {{ inf_event['create_user'] }}</span></h5>
+                                <p class="text-muted">Время создания</p>
+                            </div>
+                            <div class="lidi">
+                                {% if current_user.is_authenticated %}
+                                    <button id="like-btn" class="btn btn-secondary" data-post-id="{{ event_id }}"><i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-thumbs-up"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></i></button>
+                                    <!-- Выше кнопка лайка с иконкой -->
+                                {% else %}
+                                    <cite style="font-size: 9px;">Авторизируйтесь,<br> чтобы ставить лайки!</cite>
+                                {% endif %}
+                                <p style="font-size: 14px;">Likes: <span id="likes" style="font-weight: bold;">{{ likes }}</span></p>  <!-- количество лайков, аккуратно, тут лучше ничего не переписывать -->
+                            </div>
+                            <div class="line-divider"></div>
+                            <div class="post-text">
+                                <p>{{ inf_event['description']|safe }} </p>
+                                <!--'|safe' для преобразование текста html в код html-->
+                            </div>
+                            {% for comment in comments %}
+                                <div class="line-divider"></div>
+                                <div class="post-comment">
+                                    <div>
+                                        <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" alt="avatar" class="profile-photo-sm">
+                                        <p><a href="/user/{{ comment['create_user'] }}" class="profile-link">{{ comment["name_create_user"] }}</a> {{ comment["text"]|safe }} </p>
+                                        <cite class="lidi" style="font-size: 9px;">{{ comment['create_date'] }}</cite>
+                                    </div>
+                                    {% if current_user.is_authenticated and (current_user.id == comment['create_user'] or current_user.id == inf_event['create_user']) %}
+                                        <blockquote style="margin-top: 10px;"><a class="btn btn-outline-danger" style="font-size: 10px; padding: 2px 5px;" href="/delete_comment/{{ event_id }}/{{ comment['id'] }}">Удалить</a></blockquote>
+                                        <!--Выше в href передаётся id события и id комментария-->
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            <div class="post-comment">
+                                <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" alt="" class="profile-photo-sm">
+                                <form action="" method="post">
+                                    {{ form.hidden_tag() }}
+                                    {{ form.text_comment(class="form-control me-4", placeholder="Добавить комментарий",
+                                    aria_label="Добавить комментарий") }}
+                                    {% for error in form.text_comment.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ error }}
+                                    </div>
+                                    {% endfor %}
+                                    {{ form.submit(type="submit", class="btn btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% if current_user.is_authenticated and current_user.id == creator.id %}  <!--проверка на принадлежность события пользователю-->
+                        <div class="lidi">
+                            <a class="btn btn-secondary btn-sm" href="/edit_event/{{ event_id }}">Редактировать</a>
+                            <a class="btn btn-danger btn-sm" href="/delete_event/{{ event_id }}">Удалить</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

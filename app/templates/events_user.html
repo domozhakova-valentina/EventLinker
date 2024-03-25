@@ -2,26 +2,7 @@
 
 {% block content %}
     <main>
-
-      <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-          <div class="col-lg-6 col-md-8 mx-auto">
-            <h1 class="fw-light">Event Linker</h1>
-            <p class="lead text-body-secondary">Эта платформа организации мероприятий. Участвуйте в мероприятиях. Создавайте свои мероприятия и информируйте о них пользователей.</p>
-            <p>
-              <form method="POST" action="" class="d-flex">
-                {{ form.hidden_tag() }}
-                {{ form.search(placeholder="Поиск", aria_label="Поиск", class="form-control me-2") }}
-                {{ form.submit(class="btn btn-outline-success") }}
-              </form>
-            {% if current_user.is_authenticated %}
-              <a href="/create_event" class="btn btn-primary btn-sm my-2 float-end">Создать мероприятие</a>
-            {% endif %}
-            </p>
-          </div>
-        </div>
-      </section>
-
+      <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ user["user"]["name"] }}</span>:</h1>
       <div class="album py-5 bg-body-tertiary">
         {% if data['events'] %}
         <div class="container">
@@ -46,7 +27,7 @@
           </div>
         </div>
         {% else %}
-            <h3 class="text-center"><span>По данному запросу ничего не найдено</span></h3>
+            <h3 class="text-center"><span>У пользователя нет мероприятий (событий).</span></h3>
         {% endif %}
       </div>
     </main>

@@ -8,9 +8,9 @@
         <div class="col-12 col-md-9 col-lg-7 col-xl-6">
           <div class="card bg-primary" style="border-radius: 15px;">
             <div class="card-body p-5">
-              <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+              <h2 class="text-uppercase text-center mb-5">Редактирование профиля</h2>
 
-              <form action="" method="post" enctype="multipart/form-data" novalidate>
+              <form action="" method="post" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
 
                 <div class="form-outline mb-4">
@@ -54,26 +54,19 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.about(class="form-control form-control-lg", placeholder="Ничего не указано о пользователе") }}
+                  {{ form.about(class="form-control form-control-lg") }}
                   {{ form.about.label(class="form-label")}}
                 </div>
 
                 <div class="form-outline mb-4">
-                   {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
-                   {% for error in form.photo.errors %}
-                   <div class="alert alert-danger" role="alert">
-                   {{ error }}
-                   </div>
-                    {% endfor %}
+                  {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
                 </div>
 
                 <div class="d-flex justify-content-center">
                   {{ form.submit(type="submit", class="btn btn-success btn-block btn-lg gradient-custom-4 text-body") }}
                 </div>
-                <div>{{ message }}</div>
-                <p class="text-center text-muted mt-5 mb-0">У вас уже есть учетная запись? <a href="/login"
-                    class="fw-bold text-body"><u>Войти</u></a></p>
               </form>
+
             </div>
           </div>
         </div>

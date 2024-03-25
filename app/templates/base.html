@@ -39,7 +39,7 @@
                             </a>
                         </li>
                         <li class="nav-item ms-auto mt-1">
-                            <img src="static/img/test_icon_user.png" class="small-circle-icon" alt="Иконка">
+                            <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" class="small-circle-icon" alt="Иконка">
                         </li>
                         <li class="nav-item ms-auto">
                             <a class="nav-link" href="/home_user">
@@ -57,10 +57,12 @@
         <p class="float-end mb-1">
           <a href="#">В начало</a>
         </p>
-        <p class="mb-1">Приложение сделанное в рамках Яндекс Лицея - &copy; 2024 EventLinker - We.</p>
+          <p class="mb-1">Приложение сделанное в рамках <a href="https://lyceum.yandex.ru/">Яндекс Лицея</a> - &copy; 2024 EventLinker - We.</p>
         <p><span class="fw-bold">Создатели:</span> Гайдеек Иван Михайлович, Доможакова Валентина Ивановна, Афанасьева Дарья Сергеевна.</p>
       </div>
     </footer>
-  <script src="static/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
