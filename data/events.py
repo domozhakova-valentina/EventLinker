@@ -22,7 +22,7 @@ class Event(SqlAlchemyBase, SerializerMixin):
     mini_description = sqlalchemy.Column(sqlalchemy.String)
     description = sqlalchemy.Column(sqlalchemy.String)
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-    num_likes = sqlalchemy.Column(sqlalchemy.Integer)
+    num_likes = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 
     create_user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"))
     user = orm.relationship('User')
