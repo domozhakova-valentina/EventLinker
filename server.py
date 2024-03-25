@@ -20,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 login_manager = LoginManager()
 login_manager.init_app(main_app)
+host, port = "127.0.0.1", 8000
 
 
 @login_manager.user_loader
@@ -111,6 +112,7 @@ def create_event():
             event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
+        db_sess.merge(current_user)
         current_user.events.append(event)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -134,7 +136,7 @@ def events(id_user):
              "username": 'Название автора', "create_data": "время создания"}
         ]
     }  # пример использование, когда передаётся в html
-    user = get(f'http://127.0.0.1:8000/api/v2/users/{id_user}').json()  # объект User из БД
+    user = get(f'http://{host}:{port}/api/v2/users/{id_user}').json()  # объект User из БД
     return render_template('events_user.html', title='Events', data=data, user=user)
 
 
@@ -200,6 +202,7 @@ def event(id):
         event = db_sess.query(Event).filter(Event.id == id).first()
         comment = Comment()
         comment.text = form.text_comment.data
+        db_sess.merge(comment)
         current_user.comments.append(comment)
         event.comments.append(comment)
         db_sess.merge(current_user)
@@ -207,9 +210,21 @@ def event(id):
         db_sess.commit()
         return redirect(f'/event/{id}')
     creator_user = object  # создатель события из БД
-    likes = 10
-    return render_template('event.html', title="Просмотр события (мероприятия)", form=form, test='<a href="https://lyceum.yandex.ru/">Тест ссылка</a>',
-                           likes=likes, event_id=id, creator=creator_user)
+    response = get(f'http://{host}:{port}/api/v2/events/{id}')
+    if response.status_code == 200:
+        event = response.json()["event"]  # временно так, информация по событию
+        likes = 10
+        comments = {"comments": [{'id': 1, "text": "Комментарий 1......................................",
+                    "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"},
+                    {'id': 2, "text": "Комментарий 2......................................",
+                     "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"}
+                    ]}  # пример передачи данных
+        # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
+        return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
+                               likes=likes, event_id=id, inf_event=event,
+                               creator=creator_user, comments=comments["comments"])
+    else:
+        return redirect("/")
 
 
 likes = 10
@@ -233,9 +248,9 @@ def unlike(post_id):
 @login_required
 def delete_event(event_id):
     """Удаление события (мероприятия)"""
-    if delete(f'http://127.0.0.1:8000/api/v2/events/{event_id}').status_code == 200:
+    if delete(f'http://{host}:{port}/api/v2/events/{event_id}').status_code == 200:
         return redirect('/')
-    return redirect(f"/event/{id}")
+    return redirect(f"/event/{event_id}")
 
 
 @main_app.route('/edit_event/<int:event_id>', methods=['GET', 'POST'])
@@ -260,7 +275,16 @@ def edit_event(event_id):
     return render_template('create_event.html', title='Редактирование мероприятия', form=form)
 
 
+@main_app.route('/delete_comment/<int:event_id>/<int:comment_id>')
+@login_required
+def delete_comment(event_id, comment_id):
+    """Удаление комментария. Может только автор комментария и автор поста!"""
+    if delete(f'http://{host}:{port}/api/v2/comments/{comment_id}').status_code == 200:
+        pass  # если успеем flash реализовать, то она тут будет
+    return redirect(f"/event/{event_id}")
+
+
 if __name__ == '__main__':
     '''Строчка. чтобы создать базу данных'''
     db_session.global_init("db/event_linker.db")
-    serve(main_app, host="127.0.0.1", port=8000)
+    serve(main_app, host=host, port=port)
