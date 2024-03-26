@@ -17,8 +17,9 @@ from .db_session import SqlAlchemyBase
 class Like(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'likes_user_to_events'
 
-    user_id = Column('user', Integer, ForeignKey('user.id'), primary_key=True)
-    event_id = Column('event', Integer, ForeignKey('event.id'), primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    user_id = Column('user', Integer, ForeignKey('user.id'))
+    event_id = Column('event', Integer, ForeignKey('event.id'))
 
     user = relationship('User')
     event = relationship('Event')
