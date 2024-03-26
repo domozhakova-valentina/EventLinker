@@ -144,13 +144,16 @@ def events(id_user):
 @login_required
 def home_user():
     '''Страница пользователя'''
-    return render_template('user_home.html', title='Ваш профиль')
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    return render_template('user_home.html', title='Ваш профиль', metrics_user=metrics)
 
 
-@main_app.route('/user/<int:id>', methods=['GET', 'POST'])
-def user(id):
+@main_app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+def user(user_id):
     '''Профиль на показ всем пользователям'''
-    return render_template('user.html', title='Профиль пользователя')
+    user = get(f'http://{host}:{port}/api/v2/users/{user_id}').json()["user"]  # данные по пользователю
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
 @main_app.route('/edit_profile', methods=['GET', 'POST'])
@@ -213,35 +216,20 @@ def event(id):
     response = get(f'http://{host}:{port}/api/v2/events/{id}')
     if response.status_code == 200:
         event = response.json()["event"]  # временно так, информация по событию
-        likes = 10
+        # likes = 10
         comments = {"comments": [{'id': 1, "text": "Комментарий 1......................................",
                     "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"},
                     {'id': 2, "text": "Комментарий 2......................................",
                      "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"}
                     ]}  # пример передачи данных
         # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
+        likes = 1  # тут надо получить количество лайков из БД
+        flag_like = True  # поставлен ли на этот пост лайк у пользователя (из БД)
         return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
                                likes=likes, event_id=id, inf_event=event,
-                               creator=creator_user, comments=comments["comments"])
+                               creator=creator_user, comments=comments["comments"], flag_like=flag_like)
     else:
         return redirect("/")
-
-
-likes = 10
-
-
-@main_app.route('/api/like/<int:post_id>', methods=['POST'])
-def like(post_id):
-    global likes
-    likes += 1
-    return jsonify({'likes': likes})
-
-
-@main_app.route('/api/unlike/<int:post_id>', methods=['DELETE'])
-def unlike(post_id):
-    global likes
-    likes -= 1
-    return jsonify({'likes': likes})
 
 
 @main_app.route('/delete_event/<int:event_id>')

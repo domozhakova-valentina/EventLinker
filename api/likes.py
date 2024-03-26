@@ -4,6 +4,8 @@ from flask_restful import abort, Resource
 from data import db_session
 from data.events import Event
 from data.likes import Like
+from data.users import User
+from flask_login import current_user
 
 
 def abort_if_event_not_found(event_id):
@@ -18,7 +20,8 @@ class LikeResource(Resource):
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
-        like = Like.query.filter_by(event=event.id)
+        user = session.query(User).get(current_user.id)
+        like = Like(event=event, user=user)  # создаем новый объект Like
         session.add(like)
         event.num_likes += 1
         session.commit()
@@ -28,7 +31,7 @@ class LikeResource(Resource):
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
-        like = Like.query.filter_by(event=event.id)
+        like = session.query(Like).filter(Like.event == event, Like.user == current_user).first()
         session.delete(like)
         event.num_likes -= 1
         session.commit()
