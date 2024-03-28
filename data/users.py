@@ -25,9 +25,10 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     about = sqlalchemy.Column(sqlalchemy.String)
     email = sqlalchemy.Column(sqlalchemy.String, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    events = orm.relationship("Event", back_populates='user')
+    events = orm.relationship("Event", back_populates='user', cascade='save-update, merge, delete')
 
-    comments = orm.relationship("Comment", back_populates='user')
+    comments = orm.relationship("Comment", back_populates='user', cascade='save-update, merge, delete')
+    likes = orm.relationship("Like", back_populates='user', cascade='save-update, merge, delete')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
