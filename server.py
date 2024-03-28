@@ -166,8 +166,15 @@ def home_user():
 @main_app.route('/user/<int:id>/photo')
 def user_photo(id):
     db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == current_user.id).first()
+    user = db_sess.query(User).filter(User.id == id).first()
     return main_app.response_class(user.photo, mimetype='application/octet-stream')
+
+
+@main_app.route('/event/<int:id>/photo')
+def event_photo(id):
+    db_sess = db_session.create_session()
+    event = db_sess.query(Event).filter(Event.id == id).first()
+    return main_app.response_class(event.photo, mimetype='application/octet-stream')
 
 
 @main_app.route('/user/<int:user_id>', methods=['GET', 'POST'])
@@ -209,7 +216,7 @@ def edit_profile():
             file = form.photo.data
             if file:
                 user.photo = file.read()
-            # подумать как быть с паролем
+            user.set_password(form.password.data)
             db_sess.commit()
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
@@ -249,6 +256,7 @@ def event(id):
                                  ]}  # пример передачи данных
         # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
         db_sess = db_session.create_session()
+        # comments = db_sess.query(Comment).filter(Comment.event_id == id).all()
         likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
             0]  # тут надо получить количество лайков из БД
         event = db_sess.query(Event).get(id)
