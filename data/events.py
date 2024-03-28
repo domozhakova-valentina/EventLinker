@@ -23,8 +23,9 @@ class Event(SqlAlchemyBase, SerializerMixin):
     description = sqlalchemy.Column(sqlalchemy.String)
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     num_likes = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    likes = orm.relationship("Like", back_populates='event', cascade='save-update, merge, delete')
 
     create_user = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("user.id"))
     user = orm.relationship('User')
 
-    comments = orm.relationship("Comment", back_populates='event')
+    comments = orm.relationship("Comment", back_populates='event', cascade='save-update, merge, delete')
