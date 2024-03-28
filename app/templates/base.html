@@ -39,11 +39,19 @@
                             </a>
                         </li>
                         <li class="nav-item ms-auto mt-1">
-                            <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" class="small-circle-icon" alt="Иконка">
+                            {% if current_user.is_authenticated %}
+                                <img src="{{ url_for('user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='img/profil_photo.jpg') }}" class="small-circle-icon" alt="Иконка">
+                            {% endif %}
                         </li>
                         <li class="nav-item ms-auto">
                             <a class="nav-link" href="/home_user">
-                                Пользователь
+                                {% if current_user.is_authenticated %}
+                                    {{ current_user.name }}
+                                {% else %}
+                                    Пользователь
+                                {% endif %}
                             </a>
                         </li>
                     </ul>

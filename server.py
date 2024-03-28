@@ -1,7 +1,7 @@
 from waitress import serve
 from app.app import main_app
 from flask import request, jsonify
-
+from sqlalchemy.sql import func
 from data.likes import Like
 from form.addComment_form import AddComment
 from flask import render_template, redirect
@@ -15,7 +15,7 @@ from data.comments import Comment
 import logging
 from form.search_form import SearchForm
 from data import db_session
-from requests import get, delete
+from requests import get, delete, post
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
@@ -50,9 +50,12 @@ def root():
     else:
         data = {
             'events': [
-                {'id': 1, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
-                {'id': 2, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
-                {'id': 3, "image":'static/img/test_icon_user.png', "mini_description":'Мини описание', "username":'Название автора', "create_data":"время создания"},
+                {'id': 1, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+                 "username": 'Название автора', "create_data": "время создания"},
+                {'id': 2, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+                 "username": 'Название автора', "create_data": "время создания"},
+                {'id': 3, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+                 "username": 'Название автора', "create_data": "время создания"},
                 {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
                  "username": 'Название автора', "create_data": "время создания"}
             ]
@@ -83,7 +86,8 @@ def register():
             return render_template('register.html', title='Регистрация', form=form)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form, message="Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form,
+                                   message="Такой пользователь уже есть")
         if form.about.data.strip() == '':
             form.about.data = form.about.description
         user = User(
@@ -92,8 +96,9 @@ def register():
             about=form.about.data
         )
         file = form.photo.data
-        if file:
-            user.photo = file.read()
+        if not file:
+            file = open("static/img/profil_photo.jpg", "rb")
+        user.photo = file.read()
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -146,15 +151,45 @@ def events(id_user):
 @login_required
 def home_user():
     '''Страница пользователя'''
-    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    db_sess = db_session.create_session()
+    num_events = db_sess.query(Event).filter(Event.create_user == current_user.id).count()
+    num_like_up = db_sess.query(Like).filter(Like.user_id == current_user.id).count()
+    events = db_sess.query(Event).filter(Event.create_user == current_user.id).all()
+    num_liked = 0
+    for event in events:
+        num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
+    num_comments = db_sess.query(Comment).filter(Comment.create_user == current_user.id).count()
+    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
     return render_template('user_home.html', title='Ваш профиль', metrics_user=metrics)
+
+
+@main_app.route('/user/<int:id>/photo')
+def user_photo(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    return main_app.response_class(user.photo, mimetype='application/octet-stream')
+
+
+@main_app.route('/event/<int:id>/photo')
+def event_photo(id):
+    db_sess = db_session.create_session()
+    event = db_sess.query(Event).filter(Event.id == id).first()
+    return main_app.response_class(event.photo, mimetype='application/octet-stream')
 
 
 @main_app.route('/user/<int:user_id>', methods=['GET', 'POST'])
 def user(user_id):
     '''Профиль на показ всем пользователям'''
     user = get(f'http://{host}:{port}/api/v2/users/{user_id}').json()["user"]  # данные по пользователю
-    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
+    db_sess = db_session.create_session()
+    num_events = db_sess.query(Event).filter(Event.create_user == user_id).count()
+    num_like_up = db_sess.query(Like).filter(Like.user_id == user_id).count()
+    events = db_sess.query(Event).filter(Event.create_user == user_id).all()
+    num_liked = 0
+    for event in events:
+        num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
+    num_comments = db_sess.query(Comment).filter(Comment.create_user == user_id).count()
+    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
     return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
@@ -181,7 +216,7 @@ def edit_profile():
             file = form.photo.data
             if file:
                 user.photo = file.read()
-            # подумать как быть с паролем
+            user.set_password(form.password.data)
             db_sess.commit()
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
@@ -203,29 +238,27 @@ def event(id):
     '''Просмотр события (мероприятия)'''
     form = AddComment()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        event = db_sess.query(Event).filter(Event.id == id).first()
-        comment = Comment()
-        comment.text = form.text_comment.data
-        db_sess.merge(comment)
-        current_user.comments.append(comment)
-        event.comments.append(comment)
-        db_sess.merge(current_user)
-        db_sess.merge(event)
-        db_sess.commit()
+        post(f'http://{host}:{port}/api/v2/comments',
+              json={'text': form.text_comment.data,
+                    'create_user': current_user.id,
+                    'event_id': id}).json()
         return redirect(f'/event/{id}')
     creator_user = object  # создатель события из БД
     response = get(f'http://{host}:{port}/api/v2/events/{id}')
     if response.status_code == 200:
         event = response.json()["event"]  # временно так, информация по событию
         comments = {"comments": [{'id': 1, "text": "Комментарий 1......................................",
-                    "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"},
-                    {'id': 2, "text": "Комментарий 2......................................",
-                     "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"}
-                    ]}  # пример передачи данных
+                                  "create_date": 'Дата создания', "create_user": 1,
+                                  "name_create_user": "Имя пользователя"},
+                                 {'id': 2, "text": "Комментарий 2......................................",
+                                  "create_date": 'Дата создания', "create_user": 1,
+                                  "name_create_user": "Имя пользователя"}
+                                 ]}  # пример передачи данных
         # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
         db_sess = db_session.create_session()
-        likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[0]  # тут надо получить количество лайков из БД
+        # comments = db_sess.query(Comment).filter(Comment.event_id == id).all()
+        likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
+            0]  # тут надо получить количество лайков из БД
         event = db_sess.query(Event).get(id)
         if current_user.is_authenticated:
             like = db_sess.query(Like).filter(Like.event == event, Like.user == current_user).first()
