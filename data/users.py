@@ -4,15 +4,6 @@ from sqlalchemy import orm
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy_imageattach.entity import Image, image_attachment
-
-
-# class UserPicture(SqlAlchemyBase, Image):
-#     '''Класс для добавления изображений'''
-#
-#     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('user.id'), primary_key=True)
-#     user = orm.relationship('User')
-#     __tablename__ = 'user_picture'
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
