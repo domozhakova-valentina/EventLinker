@@ -243,7 +243,9 @@ def event(id):
                     'create_user': current_user.id,
                     'event_id': id}).json()
         return redirect(f'/event/{id}')
-    creator_user = object  # создатель события из БД
+    db_sess = db_session.create_session()
+    creator_user = db_sess.query(User).join(Event,
+                                            User.id == Event.create_user).filter(Event.id == id).first()  # создатель события из БД
     response = get(f'http://{host}:{port}/api/v2/events/{id}')
     if response.status_code == 200:
         event = response.json()["event"]  # временно так, информация по событию

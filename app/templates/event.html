@@ -7,12 +7,12 @@
             <div class="col">
                 <div class="post-content">
                     <div class="post-container">
-                        <img src="{{ url_for('static', filename='img/test_icon_user.png') }}" alt="user" class="profile-photo-md pull-left">
+                        <img src="{{ url_for('user_photo', id=creator.id) }}" alt="user" class="profile-photo-md pull-left">
                         <div class="post-detail">
                             <div class="user-info">
-                                <h5><a href="/user/{{ inf_event['create_user'] }}" class="profile-link">ИМЯ</a> <!--имя потом заменить на creator_user.name-->
-                                    <span>id: {{ inf_event['create_user'] }}</span></h5>
-                                <p class="text-muted">{{ inf_event['create_date'] }}</p>
+                                <h5><a href="/user/{{ inf_event['create_user'] }}" class="profile-link">{{ creator.name }}</a>
+                                    <span>id: {{ inf_event['id'] }}</span></h5>
+                                <p class="text-muted">{{ inf_event['create_date'].strftime('%d.%m.%Y %H:%M:%S') }}</p>
                             </div>
                             <div class="lidi">
                                 {% if current_user.is_authenticated and flag_like == "false" %}
@@ -28,7 +28,7 @@
                             <div class="line-divider"></div>
                             <div class="post-text">
                                 <p>{{ inf_event['description']|safe }} </p>
-                                <!--'|safe' для преобразование текста html в код html-->
+                                <!--'|safe' для преобразование текста в код html-->
                             </div>
                             {% for comment in comments %}
                                 <div class="line-divider"></div>
