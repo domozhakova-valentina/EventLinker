@@ -1,7 +1,6 @@
 from waitress import serve
 from app.app import main_app
 from flask import request, jsonify
-from sqlalchemy.sql import func
 from data.likes import Like
 from form.addComment_form import AddComment
 from flask import render_template, redirect
@@ -115,8 +114,9 @@ def create_event():
         db_sess = db_session.create_session()
         event = Event()
         file = form.photo.data
-        if file:
-            event.photo = file.read()
+        if not file:
+            file = open("static/img/event_photo.jpg", "rb")
+        event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         db_sess.merge(current_user)
@@ -131,18 +131,8 @@ def create_event():
 def events(id_user):
     '''Просмотр событий (мероприятий), созданных пользователем.'''
     # из БД получаем события
-    data = {
-        'events': [
-            {'id': 1, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-             "username": 'Название автора', "create_data": "время создания"},
-            {'id': 2, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-             "username": 'Название автора', "create_data": "время создания"},
-            {'id': 3, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-             "username": 'Название автора', "create_data": "время создания"},
-            {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-             "username": 'Название автора', "create_data": "время создания"}
-        ]
-    }  # пример использование, когда передаётся в html
+    db_sess = db_session.create_session()
+    data = db_sess.query(Event).filter(Event.create_user == id_user).all()
     user = get(f'http://{host}:{port}/api/v2/users/{id_user}').json()  # объект User из БД
     return render_template('events_user.html', title='Events', data=data, user=user)
 
@@ -246,24 +236,20 @@ def event(id):
     db_sess = db_session.create_session()
     creator_user = db_sess.query(User).join(Event,
                                             User.id == Event.create_user).filter(Event.id == id).first()  # создатель события из БД
-    response = get(f'http://{host}:{port}/api/v2/events/{id}')
-    if response.status_code == 200:
-        db_sess = db_session.create_session()
-        comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
-        likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
-            0]  # количество лайков из БД
-        event = db_sess.query(Event).get(id)
-        if current_user.is_authenticated:
-            like = db_sess.query(Like).filter(Like.event == event, Like.user == current_user).first()
-        else:
-            like = False
-        db_sess.commit()
-        flag_like = "true" if like else "false"  # поставлен ли на этот пост лайк у пользователя
-        return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
-                               likes=likes, event_id=id, inf_event=event,
-                               creator=creator_user, comments=comments, flag_like=flag_like)
+    db_sess = db_session.create_session()
+    comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
+    likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
+        0]  # количество лайков из БД
+    event = db_sess.query(Event).get(id)
+    if current_user.is_authenticated:
+        like = db_sess.query(Like).filter(Like.event == event, Like.user == current_user).first()
     else:
-        return redirect("/")
+        like = False
+    db_sess.commit()
+    flag_like = "true" if like else "false"  # поставлен ли на этот пост лайк у пользователя
+    return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
+                           likes=likes, event_id=id, inf_event=event,
+                           creator=creator_user, comments=comments, flag_like=flag_like)
 
 
 @main_app.route('/delete_event/<int:event_id>')
@@ -281,17 +267,26 @@ def edit_event(event_id):
     """Страница редактирования события (мероприятия)"""
     form = CreateForm()
     form.submit.label.text = 'Изменить'
-    # дописать логику сохранения прошлых полей
+    if request.method == "GET":
+        # сохранение прошлых полей
+        db_sess = db_session.create_session()
+        event = db_sess.query(Event).get(event_id)
+        form.mini_description.data = event.mini_description
+        form.description.data = event.description
+        form.photo.data = event.photo
+        db_sess.commit()
+        db_sess.close()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        event = Event()
+        event = db_sess.query(Event).get(event_id)
         file = form.photo.data
-        if file:
-            event.photo = file.read()
+        try:
+            if file:
+                event.photo = file.read()
+        except AttributeError:
+            event.photo = file
         event.mini_description = form.mini_description.data
         event.description = form.description.data
-        current_user.events.append(event)
-        db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
     return render_template('create_event.html', title='Редактирование мероприятия', form=form)

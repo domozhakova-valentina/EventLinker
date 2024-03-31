@@ -2,16 +2,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy_imageattach.entity import Image, image_attachment
 from .db_session import SqlAlchemyBase
-
-
-# class EventPicture(SqlAlchemyBase, Image):
-#     '''Класс для добавления изображений'''
-#
-#     event_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('event.id'), primary_key=True)
-#     event = orm.relationship('Event')
-#     __tablename__ = 'event_picture'
 
 
 class Event(SqlAlchemyBase, SerializerMixin):
