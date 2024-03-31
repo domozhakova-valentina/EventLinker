@@ -53,6 +53,10 @@
   margin: 0;
 }
 
+.post-text {
+    width: 70%;
+}
+
 .post-content .post-container .post-detail .reaction{
   position: absolute;
   right: 0;

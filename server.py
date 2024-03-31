@@ -248,19 +248,10 @@ def event(id):
                                             User.id == Event.create_user).filter(Event.id == id).first()  # создатель события из БД
     response = get(f'http://{host}:{port}/api/v2/events/{id}')
     if response.status_code == 200:
-        event = response.json()["event"]  # временно так, информация по событию
-        comments = {"comments": [{'id': 1, "text": "Комментарий 1......................................",
-                                  "create_date": 'Дата создания', "create_user": 1,
-                                  "name_create_user": "Имя пользователя"},
-                                 {'id': 2, "text": "Комментарий 2......................................",
-                                  "create_date": 'Дата создания', "create_user": 1,
-                                  "name_create_user": "Имя пользователя"}
-                                 ]}  # пример передачи данных
-        # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
         db_sess = db_session.create_session()
-        # comments = db_sess.query(Comment).filter(Comment.event_id == id).all()
+        comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
         likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
-            0]  # тут надо получить количество лайков из БД
+            0]  # количество лайков из БД
         event = db_sess.query(Event).get(id)
         if current_user.is_authenticated:
             like = db_sess.query(Like).filter(Like.event == event, Like.user == current_user).first()
@@ -270,7 +261,7 @@ def event(id):
         flag_like = "true" if like else "false"  # поставлен ли на этот пост лайк у пользователя
         return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
                                likes=likes, event_id=id, inf_event=event,
-                               creator=creator_user, comments=comments["comments"], flag_like=flag_like)
+                               creator=creator_user, comments=comments, flag_like=flag_like)
     else:
         return redirect("/")
 
