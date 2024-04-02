@@ -1,7 +1,6 @@
 from waitress import serve
 from app.app import main_app
 from flask import request, jsonify
-from data.likes import Like
 from form.addComment_form import AddComment
 from flask import render_template, redirect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -14,7 +13,7 @@ from data.comments import Comment
 import logging
 from form.search_form import SearchForm
 from data import db_session
-from requests import get, delete, post
+from requests import get, delete
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
@@ -42,23 +41,30 @@ def logout():
 def root():
     '''Главная страница'''
     form = SearchForm()  # форма поиска
+    events = get(f'http://{host}:{port}/api/v2/events').json()['events']  # все существующие события
+    data = {'events': []}
     if form.validate_on_submit():
         text_search = form.search.data
-        # ищем вхождения строки в мини описание или название автора
-        data = {'events': []}
-    else:
-        data = {
-            'events': [
-                {'id': 1, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-                 "username": 'Название автора', "create_data": "время создания"},
-                {'id': 2, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-                 "username": 'Название автора', "create_data": "время создания"},
-                {'id': 3, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-                 "username": 'Название автора', "create_data": "время создания"},
-                {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
-                 "username": 'Название автора', "create_data": "время создания"}
-            ]
-        }  # пример использование, когда передаётся в html
+        users = get(f'http://{host}:{port}/api/v2/users').json()['users']  # все существующие пользователи
+
+        # ищем вхождения строки в мини-описание или имя автора
+        users_id = []
+        for user in users:
+            if text_search in user['name']:
+                users_id.append(user['id'])
+        for event in events:
+            if text_search in event['mini_description'] or event['create_user'] in users_id:
+                data['events'].append(
+                    {'id': event['id'], "image": 'static/img/test_icon_user.png',
+                     "mini_description": event['mini_description'],
+                     "username": event['create_user'], "create_date": event['create_date']})
+
+    else:  # отображение всех существующих событий, если форма поиска пустая
+        for event in events:
+            data['events'].append(
+                {'id': event['id'], "image": 'static/img/test_icon_user.png',
+                 "mini_description": event['mini_description'],
+                 "username": event['create_user'], "create_date": event['create_date']})
     return render_template('index.html', title='EventLinker', data=data, form=form)
 
 
@@ -85,8 +91,7 @@ def register():
             return render_template('register.html', title='Регистрация', form=form)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form,
-                                   message="Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form, message="Такой пользователь уже есть")
         if form.about.data.strip() == '':
             form.about.data = form.about.description
         user = User(
@@ -95,9 +100,8 @@ def register():
             about=form.about.data
         )
         file = form.photo.data
-        if not file:
-            file = open("static/img/profil_photo.jpg", "rb")
-        user.photo = file.read()
+        if file:
+            user.photo = file.read()
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -114,9 +118,8 @@ def create_event():
         db_sess = db_session.create_session()
         event = Event()
         file = form.photo.data
-        if not file:
-            file = open("static/img/event_photo.jpg", "rb")
-        event.photo = file.read()
+        if file:
+            event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         db_sess.merge(current_user)
@@ -131,8 +134,18 @@ def create_event():
 def events(id_user):
     '''Просмотр событий (мероприятий), созданных пользователем.'''
     # из БД получаем события
-    db_sess = db_session.create_session()
-    data = db_sess.query(Event).filter(Event.create_user == id_user).all()
+    data = {
+        'events': [
+            {'id': 1, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 2, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 3, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"},
+            {'id': 4, "image": 'static/img/test_icon_user.png', "mini_description": 'Мини описание',
+             "username": 'Название автора', "create_data": "время создания"}
+        ]
+    }  # пример использование, когда передаётся в html
     user = get(f'http://{host}:{port}/api/v2/users/{id_user}').json()  # объект User из БД
     return render_template('events_user.html', title='Events', data=data, user=user)
 
@@ -141,45 +154,15 @@ def events(id_user):
 @login_required
 def home_user():
     '''Страница пользователя'''
-    db_sess = db_session.create_session()
-    num_events = db_sess.query(Event).filter(Event.create_user == current_user.id).count()
-    num_like_up = db_sess.query(Like).filter(Like.user_id == current_user.id).count()
-    events = db_sess.query(Event).filter(Event.create_user == current_user.id).all()
-    num_liked = 0
-    for event in events:
-        num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
-    num_comments = db_sess.query(Comment).filter(Comment.create_user == current_user.id).count()
-    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
     return render_template('user_home.html', title='Ваш профиль', metrics_user=metrics)
-
-
-@main_app.route('/user/<int:id>/photo')
-def user_photo(id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == id).first()
-    return main_app.response_class(user.photo, mimetype='application/octet-stream')
-
-
-@main_app.route('/event/<int:id>/photo')
-def event_photo(id):
-    db_sess = db_session.create_session()
-    event = db_sess.query(Event).filter(Event.id == id).first()
-    return main_app.response_class(event.photo, mimetype='application/octet-stream')
 
 
 @main_app.route('/user/<int:user_id>', methods=['GET', 'POST'])
 def user(user_id):
     '''Профиль на показ всем пользователям'''
     user = get(f'http://{host}:{port}/api/v2/users/{user_id}').json()["user"]  # данные по пользователю
-    db_sess = db_session.create_session()
-    num_events = db_sess.query(Event).filter(Event.create_user == user_id).count()
-    num_like_up = db_sess.query(Like).filter(Like.user_id == user_id).count()
-    events = db_sess.query(Event).filter(Event.create_user == user_id).all()
-    num_liked = 0
-    for event in events:
-        num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
-    num_comments = db_sess.query(Comment).filter(Comment.create_user == user_id).count()
-    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
+    metrics = {"events": 2, "like_up": 10, "liked": 39, "comments": 4}  # данные-метрики из БД по пользователю
     return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
@@ -206,7 +189,7 @@ def edit_profile():
             file = form.photo.data
             if file:
                 user.photo = file.read()
-            user.set_password(form.password.data)
+            # подумать как быть с паролем
             db_sess.commit()
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
@@ -228,28 +211,35 @@ def event(id):
     '''Просмотр события (мероприятия)'''
     form = AddComment()
     if form.validate_on_submit():
-        post(f'http://{host}:{port}/api/v2/comments',
-              json={'text': form.text_comment.data,
-                    'create_user': current_user.id,
-                    'event_id': id}).json()
+        db_sess = db_session.create_session()
+        event = db_sess.query(Event).filter(Event.id == id).first()
+        comment = Comment()
+        comment.text = form.text_comment.data
+        db_sess.merge(comment)
+        current_user.comments.append(comment)
+        event.comments.append(comment)
+        db_sess.merge(current_user)
+        db_sess.merge(event)
+        db_sess.commit()
         return redirect(f'/event/{id}')
-    db_sess = db_session.create_session()
-    creator_user = db_sess.query(User).join(Event,
-                                            User.id == Event.create_user).filter(Event.id == id).first()  # создатель события из БД
-    db_sess = db_session.create_session()
-    comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
-    likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
-        0]  # количество лайков из БД
-    event = db_sess.query(Event).get(id)
-    if current_user.is_authenticated:
-        like = db_sess.query(Like).filter(Like.event == event, Like.user == current_user).first()
+    creator_user = object  # создатель события из БД
+    response = get(f'http://{host}:{port}/api/v2/events/{id}')
+    if response.status_code == 200:
+        event = response.json()["event"]  # временно так, информация по событию
+        # likes = 10
+        comments = {"comments": [{'id': 1, "text": "Комментарий 1......................................",
+                    "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"},
+                    {'id': 2, "text": "Комментарий 2......................................",
+                     "create_date": 'Дата создания', "create_user": 1, "name_create_user": "Имя пользователя"}
+                    ]}  # пример передачи данных
+        # комментариев, но можно будет как из базы данных, тогда чуть-чуть переделаю html (напишите мне)
+        likes = 1  # тут надо получить количество лайков из БД
+        flag_like = True  # поставлен ли на этот пост лайк у пользователя (из БД)
+        return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
+                               likes=likes, event_id=id, inf_event=event,
+                               creator=creator_user, comments=comments["comments"], flag_like=flag_like)
     else:
-        like = False
-    db_sess.commit()
-    flag_like = "true" if like else "false"  # поставлен ли на этот пост лайк у пользователя
-    return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
-                           likes=likes, event_id=id, inf_event=event,
-                           creator=creator_user, comments=comments, flag_like=flag_like)
+        return redirect("/")
 
 
 @main_app.route('/delete_event/<int:event_id>')
@@ -267,26 +257,17 @@ def edit_event(event_id):
     """Страница редактирования события (мероприятия)"""
     form = CreateForm()
     form.submit.label.text = 'Изменить'
-    if request.method == "GET":
-        # сохранение прошлых полей
-        db_sess = db_session.create_session()
-        event = db_sess.query(Event).get(event_id)
-        form.mini_description.data = event.mini_description
-        form.description.data = event.description
-        form.photo.data = event.photo
-        db_sess.commit()
-        db_sess.close()
+    # дописать логику сохранения прошлых полей
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        event = db_sess.query(Event).get(event_id)
+        event = Event()
         file = form.photo.data
-        try:
-            if file:
-                event.photo = file.read()
-        except AttributeError:
-            event.photo = file
+        if file:
+            event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
+        current_user.events.append(event)
+        db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
     return render_template('create_event.html', title='Редактирование мероприятия', form=form)
