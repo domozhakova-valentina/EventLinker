@@ -29,7 +29,7 @@
               {% for event_data in data['events'] %}
               <div class="col">
                 <div class="card shadow-sm">
-                  <img src="{{ event_data['image'] }}" class="card-img-top" alt="Изображение мероприятия">
+                  <img src="{{ url_for('event_photo', id=event_data['id']) }}" alt="Изображение мероприятия" class="card-img-top">
                   <div class="card-body">
                     <p class="card-text">{{ event_data['mini_description']|safe }}</p>  <!--'|safe' для преобразование текста html в код html-->
                     <p class="card-text">Автор: {{ event_data['username'] }}</p>

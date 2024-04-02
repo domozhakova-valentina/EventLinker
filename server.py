@@ -1,6 +1,8 @@
 from waitress import serve
 from app.app import main_app
 from flask import request, jsonify
+
+from data.likes import Like
 from form.addComment_form import AddComment
 from flask import render_template, redirect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -43,6 +45,7 @@ def root():
     form = SearchForm()  # форма поиска
     events = get(f'http://{host}:{port}/api/v2/events').json()['events']  # все существующие события
     data = {'events': []}
+    db_sess = db_session.create_session()
     if form.validate_on_submit():
         text_search = form.search.data
         users = get(f'http://{host}:{port}/api/v2/users').json()['users']  # все существующие пользователи
@@ -55,16 +58,19 @@ def root():
         for event in events:
             if text_search in event['mini_description'] or event['create_user'] in users_id:
                 data['events'].append(
-                    {'id': event['id'], "image": 'static/img/test_icon_user.png',
+                    {'id': event['id'],
                      "mini_description": event['mini_description'],
-                     "username": event['create_user'], "create_date": event['create_date']})
+                     "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
+                     "create_date": event['create_date']})
 
     else:  # отображение всех существующих событий, если форма поиска пустая
         for event in events:
             data['events'].append(
-                {'id': event['id'], "image": 'static/img/test_icon_user.png',
+                {'id': event['id'],
                  "mini_description": event['mini_description'],
-                 "username": event['create_user'], "create_date": event['create_date']})
+                 "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
+                 "create_date": event['create_date']})
+    db_sess.close()
     return render_template('index.html', title='EventLinker', data=data, form=form)
 
 
@@ -91,7 +97,8 @@ def register():
             return render_template('register.html', title='Регистрация', form=form)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form, message="Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form,
+                                   message="Такой пользователь уже есть")
         if form.about.data.strip() == '':
             form.about.data = form.about.description
         user = User(
@@ -154,7 +161,8 @@ def home_user():
     for event in events:
         num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
     num_comments = db_sess.query(Comment).filter(Comment.create_user == current_user.id).count()
-    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
+    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked,
+               "comments": num_comments}  # данные-метрики из БД по пользователю
     return render_template('user_home.html', title='Ваш профиль', metrics_user=metrics)
 
 
@@ -184,7 +192,8 @@ def user(user_id):
     for event in events:
         num_liked += db_sess.query(Like).filter(Like.event_id == event.id).count()
     num_comments = db_sess.query(Comment).filter(Comment.create_user == user_id).count()
-    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked, "comments": num_comments}  # данные-метрики из БД по пользователю
+    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked,
+               "comments": num_comments}  # данные-метрики из БД по пользователю
     return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
@@ -234,13 +243,14 @@ def event(id):
     form = AddComment()
     if form.validate_on_submit():
         post(f'http://{host}:{port}/api/v2/comments',
-              json={'text': form.text_comment.data,
-                    'create_user': current_user.id,
-                    'event_id': id}).json()
+             json={'text': form.text_comment.data,
+                   'create_user': current_user.id,
+                   'event_id': id}).json()
         return redirect(f'/event/{id}')
     db_sess = db_session.create_session()
     creator_user = db_sess.query(User).join(Event,
-                                            User.id == Event.create_user).filter(Event.id == id).first()  # создатель события из БД
+                                            User.id == Event.create_user).filter(
+        Event.id == id).first()  # создатель события из БД
     db_sess = db_session.create_session()
     comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
     likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
