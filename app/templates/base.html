@@ -40,7 +40,7 @@
                         </li>
                         {% if current_user.is_authenticated %}
                             <li class="nav-item ms-auto mt-1">
-                                <img src="{{ url_for('user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка">
+                                <img src="{{ url_for('rusers.user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка">
                             </li>
                             <li class="nav-item ms-auto">
                                 <a class="nav-link" href="/home_user">

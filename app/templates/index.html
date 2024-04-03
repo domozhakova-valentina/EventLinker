@@ -29,13 +29,13 @@
               {% for event_data in data['events'] %}
               <div class="col">
                 <div class="card shadow-sm">
-                  <img src="{{ url_for('event_photo', id=event_data['id']) }}" alt="Изображение мероприятия" class="card-img-top">
+                  <img src="{{ url_for('revent.event_photo', id=event_data['id']) }}" alt="Изображение мероприятия" class="card-img-top">
                   <div class="card-body">
                     <p class="card-text">{{ event_data['mini_description']|safe }}</p>  <!--'|safe' для преобразование текста html в код html-->
                     <p class="card-text">Автор: {{ event_data['username'] }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
-                        <a href="/event/{{ event_data['id'] }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+                        <a href="{{ url_for('revent.event', id=event_data['id']) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
                       <small class="text-body-secondary">{{ event_data['create_data'] }}</small>
                     </div>
