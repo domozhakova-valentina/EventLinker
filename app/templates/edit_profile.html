@@ -60,7 +60,7 @@
 
                 <div class="form-outline mb-4">
                   {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
-                  <p>Avatar, если вы не выберите новый: <img src="{{ url_for('user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка"></p>
+                  <p>Avatar, если вы не выберите новый: <img src="{{ url_for('rusers.user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка"></p>
                 </div>
 
                 <div class="d-flex justify-content-center">
