@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, flash
 from flask_login import login_required, logout_user, current_user
 from requests import get
 
@@ -17,6 +17,7 @@ rusers = Blueprint('rusers', __name__)
 def logout():
     '''Обработчик выхода пользователя'''
     logout_user()
+    flash('Вы вышли из вашей учетной записи')
     return redirect("/")
 
 
@@ -69,4 +70,5 @@ def delete_user(id):
     if user:
         db_sess.delete(user)
         db_sess.commit()
+    flash('Пользователь удален')
     return redirect('/')
