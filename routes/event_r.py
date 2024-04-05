@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template
+from flask import Blueprint, redirect, render_template, flash
 from flask_login import login_required, current_user
 from requests import get, delete, post
 
@@ -101,6 +101,7 @@ def event(id):
 def delete_event(event_id):
     """Удаление события (мероприятия)"""
     if delete(f'http://{host}:{port}/api/v2/events/{event_id}').status_code == 200:
+        flash('Событие удалено')
         return redirect('/')
     return redirect(f"/event/{event_id}")
 
@@ -110,5 +111,5 @@ def delete_event(event_id):
 def delete_comment(event_id, comment_id):
     """Удаление комментария. Может только автор комментария и автор поста!"""
     if delete(f'http://{host}:{port}/api/v2/comments/{comment_id}').status_code == 200:
-        pass  # если успеем flash реализовать, то она тут будет
+        flash('Комментарий удален')
     return redirect(f"/event/{event_id}")

@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request, flash
 from flask_login import login_user, login_required, current_user
 
 from data import db_session
@@ -20,6 +20,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
+            flash('Вы успешно вошли в учетную запись')
             return redirect("/")
         return render_template('login.html', message="Неправильный логин или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form)
@@ -50,6 +51,7 @@ def register():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        flash("Новый пользователь зарегестрирован")
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -72,6 +74,7 @@ def create_event():
         current_user.events.append(event)
         db_sess.merge(current_user)
         db_sess.commit()
+        flash("Новое событие успешно создано")
         return redirect('/')
     return render_template('create_event.html', title='Создание мероприятия', form=form)
 
@@ -101,6 +104,7 @@ def edit_profile():
                 user.photo = file.read()
             user.set_password(form.password.data)
             db_sess.commit()
+        flash("Данные пользователя успешно изменены")
         return redirect('/')
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
 
@@ -132,5 +136,6 @@ def edit_event(event_id):
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         db_sess.commit()
+        flash("Данные события успешно изменены")
         return redirect('/')
     return render_template('create_event.html', title='Редактирование мероприятия', form=form)

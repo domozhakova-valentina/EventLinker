@@ -50,10 +50,24 @@
                         {% endif %}
                     </ul>
                 </div>
+                {% with messages = get_flashed_messages() %}
+                     {% if messages %}
+                        <div class="d-flex justify-content-center">
+                            {% for message in messages %}
+                                    <div class="alert alert-info alert-dismissible fade show my-2 text-center" role="alert" style="font-size: 16px; display: inline-block; width: auto; max-width: 500%; background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460;">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+
+                            {% endfor %}
+
+                        </div>
+                     {% endif %}
+                {% endwith %}
             </div>
         </nav>
     </div>
-  {% block content %}{% endblock %}
+{% block content %} {% endblock %}
     <footer class="text-body-secondary py-5 bg-gradient-b">
       <div class="container">
         <p class="float-end mb-1">
