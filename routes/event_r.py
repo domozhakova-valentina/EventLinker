@@ -10,53 +10,39 @@ from data.likes import Like
 from data.users import User
 from form.addComment_form import AddComment
 from form.search_form import SearchForm
+from data.paginate import Pagination
+
 
 revent = Blueprint('revent', __name__)
 
 
 @revent.route('/', methods=['POST', "GET"])
-def root():
+@revent.route('/page/<int:page>', methods=['GET', 'POST'])
+def root(page=1):
     '''Главная страница'''
     form = SearchForm()  # форма поиска
-    events = get(f'http://{host}:{port}/api/v2/events').json()['events']  # все существующие события
-    data = {'events': []}
     db_sess = db_session.create_session()
     if form.validate_on_submit():
         text_search = form.search.data
-        users = get(f'http://{host}:{port}/api/v2/users').json()['users']  # все существующие пользователи
+        a_events = db_sess.query(Event).join(Event.user).filter(
+            (Event.mini_description.like(f'%{text_search}%')) | (User.name.like(f'%{text_search}%')))  # поиск по вхождению в мини-описание или имя автора
+    else:
+        a_events = db_sess.query(Event).order_by(Event.num_likes.desc())  # сортировка (у которых лайков больше те первые)
 
-        # ищем вхождения строки в мини-описание или имя автора
-        users_id = []
-        for user in users:
-            if text_search in user['name']:
-                users_id.append(user['id'])
-        for event in events:
-            if text_search in event['mini_description'] or event['create_user'] in users_id:
-                data['events'].append(
-                    {'id': event['id'],
-                     "mini_description": event['mini_description'],
-                     "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
-                     "create_date": event['create_date']})
+    pagination = Pagination(a_events, page, 9)
 
-    else:  # отображение всех существующих событий, если форма поиска пустая
-        for event in events:
-            data['events'].append(
-                {'id': event['id'],
-                 "mini_description": event['mini_description'],
-                 "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
-                 "create_date": event['create_date']})
-    db_sess.close()
-    return render_template('index.html', title='EventLinker', data=data, form=form)
+    return render_template('index.html', title='EventLinker', data=pagination, form=form)
 
 
-@revent.route('/events/<int:id_user>')
-def events(id_user):
+@revent.route('/events/<int:id_user>/page/<int:page>')
+def events(id_user, page=1):
     '''Просмотр событий (мероприятий), созданных пользователем.'''
     # из БД получаем события
     db_sess = db_session.create_session()
-    data = db_sess.query(Event).filter(Event.create_user == id_user).all()
+    data = db_sess.query(Event).filter(Event.create_user == id_user)
     user = get(f'http://{host}:{port}/api/v2/users/{id_user}').json()  # объект User из БД
-    return render_template('events_user.html', title='Events', data=data, user=user)
+    pagination = Pagination(data, page, 9)
+    return render_template('events_user.html', title='Events', data=pagination, user=user)
 
 
 @revent.route('/event/<int:id>/photo')

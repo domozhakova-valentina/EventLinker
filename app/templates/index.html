@@ -23,21 +23,21 @@
       </section>
 
       <div class="album py-5 bg-body-tertiary">
-        {% if data['events'] %}
+        {% if data.items() %}
         <div class="container">
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-              {% for event_data in data['events'] %}
+              {% for event_data in data.items() %}
               <div class="col">
                 <div class="card shadow-sm">
-                  <img src="{{ url_for('revent.event_photo', id=event_data['id']) }}" alt="Изображение мероприятия" class="card-img-top">
+                  <img src="{{ url_for('revent.event_photo', id=event_data.id) }}" alt="Изображение мероприятия" class="card-img-top">
                   <div class="card-body">
-                    <p class="card-text">{{ event_data['mini_description']|safe }}</p>  <!--'|safe' для преобразование текста html в код html-->
-                    <p class="card-text">Автор: {{ event_data['username'] }}</p>
+                    <p class="card-text">{{ event_data.mini_description|safe }}</p>  <!--'|safe' для преобразование текста html в код html-->
+                    <p class="card-text">Автор: {{ event_data.user.name }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
-                        <a href="{{ url_for('revent.event', id=event_data['id']) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+                        <a href="{{ url_for('revent.event', id=event_data.id) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
-                      <small class="text-body-secondary">{{ event_data['create_data'] }}</small>
+                      <small class="text-body-secondary">{{ event_data.create_data }}</small>
                     </div>
                   </div>
                 </div>
@@ -45,8 +45,37 @@
               {% endfor %}
           </div>
         </div>
+        <nav aria-label="навигация по страницам" class="nav_page">
+          <ul class="pagination justify-content-end">
+            {% if not data.has_previous() %}
+              <li class="page-item disabled">
+            {% else %}
+              <li class="page-item">
+            {% endif %}
+              <a class="page-link" href="/page/{{ data.previous_page_number }}">Предыдущая</a>
+            </li>
+
+            {% for page in data.pages_range %}
+              {% if page == data.page %}
+                <li class="page-item active">
+              {% else %}
+                <li class="page-item">
+              {% endif %}
+                <a class="page-link" href="/page/{{ page }}">{{ page }}</a>
+              </li>
+            {% endfor %}
+
+            {% if not data.has_next() %}
+              <li class="page-item disabled">
+            {% else %}
+              <li class="page-item">
+            {% endif %}
+              <a class="page-link" href="/page/{{ data.next_page_number }}">Следующая</a>
+            </li>
+          </ul>
+        </nav>
         {% else %}
-            <h3 class="text-center"><span>По данному запросу ничего не найдено</span></h3>
+            <h3 class="text-center"><span>Ничего не нашли</span></h3>
         {% endif %}
       </div>
     </main>
