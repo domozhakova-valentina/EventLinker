@@ -30,5 +30,4 @@ def load_user(user_id):
 
 if __name__ == '__main__':
     '''Строчка. чтобы создать базу данных'''
-    db_session.global_init("db/event_linker.db")
     serve(main_app, host=host, port=port)

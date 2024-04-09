@@ -112,3 +112,8 @@ img.profile-photo-sm {
   float: right;
   display: inline-block;
 }
+
+.nav_page {
+    margin-right: 8%;
+    margin-top: 15px;
+}

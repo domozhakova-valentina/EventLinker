@@ -5,17 +5,20 @@ from api.users import UserResource, UsersListResource
 from api.comments import CommentResource, CommentsListResource
 from api.events import EventResource, EventsListResource
 from api.likes import LikeResource
+from data import db_session
 
 
 class MyApp(Flask):
     def __init__(self, *args, **kwargs):
         super(MyApp, self).__init__(*args, **kwargs)
         self.config['SECRET_KEY'] = '23vghtklbn4hj8900'
+        self.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////db/event_linker.db"
         self.register_blueprint(errors)  # добавление своих ошибок 404, 403, 500
 
 
 main_app = MyApp(__name__, static_folder="./../static")
 api = Api(main_app)
+db_session.global_init("db/event_linker.db")
 # для пользователей
 api.add_resource(UsersListResource, '/api/v2/users')
 api.add_resource(UserResource, '/api/v2/users/<int:user_id>')
