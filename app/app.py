@@ -30,5 +30,3 @@ api.add_resource(CommentsListResource, '/api/v2/comments')
 api.add_resource(CommentResource, '/api/v2/comments/<int:comment_id>')
 # для лайков
 api.add_resource(LikeResource, '/api/v2/like/<int:event_id>')
-
-host, port = "127.0.0.1", 8000
