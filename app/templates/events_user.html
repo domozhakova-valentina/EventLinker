@@ -2,7 +2,7 @@
 
 {% block content %}
     <main>
-      <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ user["user"]["name"] }}</span>:</h1>
+      <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ user["name"] }}</span>:</h1>
       <div class="album py-5 bg-body-tertiary">
         {% if data %}
         <div class="container">
@@ -16,7 +16,7 @@
                     <p class="card-text">Автор: {{ event_data.user.name }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
-                        <a href="/event/{{ event_data['id'] }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+                        <a href="/event/{{ event_data.id }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
                       <small class="text-body-secondary">{{ event_data.create_data }}</small>
                     </div>
@@ -33,7 +33,7 @@
             {% else %}
               <li class="page-item">
             {% endif %}
-              <a class="page-link" href="/page/{{ data.previous_page_number }}">Предыдущая</a>
+              <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.previous_page_number }}">Предыдущая</a>
             </li>
 
             {% for page in data.pages_range %}
@@ -42,7 +42,7 @@
               {% else %}
                 <li class="page-item">
               {% endif %}
-                <a class="page-link" href="/page/{{ page }}">{{ page }}</a>
+                <a class="page-link" href="/events/{{ user['id'] }}/page/{{ page }}">{{ page }}</a>
               </li>
             {% endfor %}
 
@@ -51,7 +51,7 @@
             {% else %}
               <li class="page-item">
             {% endif %}
-              <a class="page-link" href="/page/{{ data.next_page_number }}">Следующая</a>
+              <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.next_page_number }}">Следующая</a>
             </li>
           </ul>
         </nav>

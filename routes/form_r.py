@@ -51,7 +51,7 @@ def register():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        flash("Новый пользователь зарегестрирован")
+        flash("Новый пользователь зарегистрирован")
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -113,6 +113,10 @@ def edit_profile():
 @login_required
 def edit_event(event_id):
     """Страница редактирования события (мероприятия)"""
+    session = db_session.create_session()
+    if not current_user.id == session.query(Event.create_user).filter(event_id == Event.id).first()[0]:  # переводит пользователя назад, если он не создатель поста
+        flash("Вы не имеете право на редактирование этого события!")
+        return redirect(f"/event/{event_id}")
     form = CreateForm()
     form.submit.label.text = 'Изменить'
     if request.method == "GET":

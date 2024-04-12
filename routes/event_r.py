@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from flask import Blueprint, redirect, render_template, flash
 from flask_login import login_required, current_user
-from requests import get, delete, post
 
-from app.app import main_app, host, port
+from app.app import main_app
 from data import db_session
 from data.comments import Comment
 from data.events import Event
@@ -40,7 +41,7 @@ def events(id_user, page=1):
     # из БД получаем события
     db_sess = db_session.create_session()
     data = db_sess.query(Event).filter(Event.create_user == id_user)
-    user = get(f'http://{host}:{port}/api/v2/users/{id_user}').json()  # объект User из БД
+    user = db_sess.query(User).get(id_user)  # объект User из БД
     pagination = Pagination(data, page, 9)
     return render_template('events_user.html', title='Events', data=pagination, user=user)
 
@@ -57,10 +58,15 @@ def event(id):
     '''Просмотр события (мероприятия)'''
     form = AddComment()
     if form.validate_on_submit():
-        post(f'http://{host}:{port}/api/v2/comments',
-             json={'text': form.text_comment.data,
-                   'create_user': current_user.id,
-                   'event_id': id}).json()
+        session = db_session.create_session()
+        comment = Comment()
+        comment.text = form.text_comment.data
+        comment.create_date = datetime.now()
+        comment.create_user = current_user.id
+        comment.event_id = id
+        session.add(comment)
+        session.commit()
+        session.close()
         return redirect(f'/event/{id}')
     db_sess = db_session.create_session()
     creator_user = db_sess.query(User).join(Event,
@@ -86,16 +92,39 @@ def event(id):
 @login_required
 def delete_event(event_id):
     """Удаление события (мероприятия)"""
-    if delete(f'http://{host}:{port}/api/v2/events/{event_id}').status_code == 200:
-        flash('Событие удалено')
+    session = db_session.create_session()
+    if current_user.id == session.query(Event.create_user).filter(event_id == Event.id).first()[0]:  # проверка, что удаляет пост создатель его
+        try:
+            event = session.query(Event).get(event_id)
+            session.delete(event)
+            session.commit()
+            flash('Событие удалено')
+        except Exception as ex:
+            flash("Не удалось удалить запись!")
+        session.close()
         return redirect('/')
-    return redirect(f"/event/{event_id}")
+    session.close()
+    flash('У вас нет прав на удаление этого события')
+    return redirect('/')
 
 
-@revent.route('/delete_comment/<int:event_id>/<int:comment_id>')
+@revent.route('/delete_comment/<int:user_id>/<int:comment_id>/event=<int:event_id>')
 @login_required
-def delete_comment(event_id, comment_id):
-    """Удаление комментария. Может только автор комментария и автор поста!"""
-    if delete(f'http://{host}:{port}/api/v2/comments/{comment_id}').status_code == 200:
-        flash('Комментарий удален')
+def delete_comment(user_id, comment_id, event_id):
+    """Удаление комментария. Может только автор комментария или автор поста!"""
+    session = db_session.create_session()
+    if user_id == current_user.id or current_user.id == \
+            session.query(Event.create_user).filter(event_id == Event.id).first()[0]:
+        # выше строчка проверки на права удаления комментария (создатель комментария или события)
+        try:
+            comment = session.query(Comment).get(comment_id)
+            session.delete(comment)
+            session.commit()
+            flash('Комментарий удален')
+        except Exception as ex:
+            flash("Не удалось удалить запись!")
+        session.close()
+        return redirect(f"/event/{event_id}")
+    session.close()
+    flash("Вы не имеете право на удаление этого комментария!")
     return redirect(f"/event/{event_id}")
