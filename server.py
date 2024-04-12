@@ -1,5 +1,5 @@
 from waitress import serve
-from app.app import main_app, host, port
+from app.app import main_app
 
 from flask_login import LoginManager
 from data.users import User
@@ -30,4 +30,4 @@ def load_user(user_id):
 
 if __name__ == '__main__':
     '''Строчка. чтобы создать базу данных'''
-    serve(main_app, host=host, port=port)
+    serve(main_app, host="127.0.0.1", port=8000)

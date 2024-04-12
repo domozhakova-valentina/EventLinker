@@ -39,7 +39,7 @@
                                         <cite class="lidi" style="font-size: 9px;">{{ comment.create_date.strftime('%Y-%m-%d %H:%M:%S') }}</cite>
                                     </div>
                                     {% if current_user.is_authenticated and (current_user.id == comment.create_user or current_user.id == inf_event['create_user']) %}
-                                        <blockquote style="margin-top: 10px;"><a class="btn btn-outline-danger" style="font-size: 10px; padding: 2px 5px;" href="/delete_comment/{{ event_id }}/{{ comment.id }}">Удалить</a></blockquote>
+                                        <blockquote style="margin-top: 10px;"><a class="btn btn-outline-danger" style="font-size: 10px; padding: 2px 5px;" href="/delete_comment/{{ comment.create_user }}/{{ comment.id }}/event={{ inf_event['id'] }}">Удалить</a></blockquote>
                                         <!--Выше в href передаётся id события и id комментария-->
                                     {% endif %}
                                 </div>

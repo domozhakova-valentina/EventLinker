@@ -1,8 +1,7 @@
 from flask import Blueprint, redirect, render_template, flash
 from flask_login import login_required, logout_user, current_user
-from requests import get
 
-from app.app import main_app, host, port
+from app.app import main_app
 from data import db_session
 from data.comments import Comment
 from data.events import Event
@@ -17,7 +16,7 @@ rusers = Blueprint('rusers', __name__)
 def logout():
     '''Обработчик выхода пользователя'''
     logout_user()
-    flash('Вы вышли из вашей учетной записи')
+    flash('Вы вышли из текущей учётной записи')
     return redirect("/")
 
 
@@ -48,8 +47,8 @@ def user_photo(id):
 @rusers.route('/user/<int:user_id>', methods=['GET', 'POST'])
 def user(user_id):
     '''Профиль на показ всем пользователям'''
-    user = get(f'http://{host}:{port}/api/v2/users/{user_id}').json()["user"]  # данные по пользователю
     db_sess = db_session.create_session()
+    user = db_sess.query(User).get(user_id)  # данные по пользователю
     num_events = db_sess.query(Event).filter(Event.create_user == user_id).count()
     num_like_up = db_sess.query(Like).filter(Like.user_id == user_id).count()
     events = db_sess.query(Event).filter(Event.create_user == user_id).all()
@@ -62,13 +61,15 @@ def user(user_id):
     return render_template('user.html', title='Профиль пользователя', user=user, metrics_user=metrics)
 
 
-@rusers.route('/delete_user/<int:id>', methods=['GET'])
+@rusers.route('/delete_user/<int:user_id>', methods=['GET'])
 @login_required
-def delete_user(id):
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == id).first()
-    if user:
+def delete_user(user_id):
+    if current_user.id == user_id:  # проверка, что удаляет пользователь самого себя
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == user_id).first()
         db_sess.delete(user)
         db_sess.commit()
-    flash('Пользователь удален')
+        flash('Пользователь удален')
+        return redirect('/')
+    flash('У вас нет права удалять этого пользователя!')
     return redirect('/')
