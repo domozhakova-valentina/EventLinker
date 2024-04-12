@@ -109,7 +109,7 @@ class CheckCommentsApi:
         print(response.json())
 
         print("Тест удаления комментария:")
-        print(delete(f'http://127.0.0.1:8000/api/v2/сomments/{test_comment_id}').text)
+        print(delete(f'http://127.0.0.1:8000/api/v2/comments/{test_comment_id}').json())
 
 
 users = CheckUsersApi()
