@@ -3,6 +3,23 @@ from flask_restful import reqparse, abort, Resource
 
 from data import db_session
 from data.users import User
+from data.events import Event
+from data.likes import Like
+from data.comments import Comment
+
+
+def get_metrics(user_id):
+    session = db_session.create_session()
+    num_events = session.query(Event).filter(Event.create_user == user_id).count()
+    num_like_up = session.query(Like).filter(Like.user_id == user_id).count()
+    events = session.query(Event).filter(Event.create_user == user_id).all()
+    num_liked = 0
+    for event in events:
+        num_liked += session.query(Like).filter(Like.event_id == event.id).count()
+    num_comments = session.query(Comment).filter(Comment.create_user == user_id).count()
+    metrics = {"events": num_events, "like_up": num_like_up, "liked": num_liked,
+               "comments": num_comments}  # данные-метрики из БД по пользователю
+    return metrics
 
 
 def abort_if_user_not_found(user_id):
@@ -17,8 +34,8 @@ class UserResource(Resource):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
         user = session.query(User).get(user_id)
-        return jsonify({'user': user.to_dict(
-            only=('id', 'name', 'about', 'email'))})
+        metrics = get_metrics(user_id)
+        return jsonify({'user': user.to_dict(only=('id', 'name', 'about', 'email')), 'metrics': metrics})
 
     def post(self, user_id):  # редактирование
         abort_if_user_not_found(user_id)
@@ -33,7 +50,7 @@ class UserResource(Resource):
 
         # Проверяем уникальность email
         if args['email']:
-            if User.query.filter_by(email=args['email']).first():
+            if session.query(User).filter(User.email == args['email']).first():
                 abort(400, message=f'User with this email already exists')
 
         user_args = ['name', 'about', 'email', 'hashed_password']
@@ -60,13 +77,13 @@ class UsersListResource(Resource):
     def get(self):  # получение списка пользователей
         db_sess = db_session.create_session()
         users = db_sess.query(User).all()
-        return jsonify(
-            {
-                'users':
-                    [item.to_dict(only=('id', 'name', 'about', 'email'))
-                     for item in users]
-            }
-        )
+        users_list = []
+        for user in users:
+            metrics = get_metrics(user.id)  # Получаем метрики для пользователя
+            user_dict = user.to_dict(only=('id', 'name', 'about', 'email'))
+            user_dict['metrics'] = metrics
+            users_list.append(user_dict)  # Добавляем пользователя в список
+        return jsonify({'users': users_list})
 
     def post(self):  # создание нового пользователя
         parser = reqparse.RequestParser()
@@ -75,9 +92,10 @@ class UsersListResource(Resource):
         parser.add_argument('email', required=True)
         parser.add_argument('hashed_password', required=True)
         args = parser.parse_args()
+        db_sess = db_session.create_session()
 
         # Проверка на уникальность email
-        if User.query.filter_by(email=args['email']).first():
+        if db_sess.query(User).filter(User.email == args['email']).first():
             abort(400, message=f'User with this email already exists')
 
         session = db_session.create_session()
