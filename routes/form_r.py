@@ -70,10 +70,15 @@ def create_event():
         event.photo = file.read()
         event.mini_description = form.mini_description.data
         event.description = form.description.data
-        db_sess.merge(current_user)
-        current_user.events.append(event)
-        db_sess.merge(current_user)
+        if not db_sess.is_modified(current_user):
+            user = db_sess.merge(current_user)
+        # Теперь вы можете безопасно обращаться к атрибуту событий
+        user.events.append(event)
+        # И снова объедините текущего пользователя в сеансе
+        db_sess.merge(user)
+        # Произведите фиксацию изменений
         db_sess.commit()
+        db_sess.close()
         flash("Новое событие успешно создано")
         return redirect('/')
     return render_template('create_event.html', title='Создание мероприятия', form=form)

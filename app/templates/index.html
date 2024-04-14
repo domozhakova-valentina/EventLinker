@@ -9,9 +9,9 @@
             <h1 class="fw-light">Event Linker</h1>
             <p class="lead text-body-secondary">Эта платформа организации мероприятий. Участвуйте в мероприятиях. Создавайте свои мероприятия и информируйте о них пользователей.</p>
             <p>
-              <form method="POST" action="" class="d-flex">
+              <form method="POST" action="/" class="d-flex">
                 {{ form.hidden_tag() }}
-                {{ form.search(placeholder="Поиск", aria_label="Поиск", class="form-control me-2") }}
+                {{ form.search(placeholder="Поиск", aria_label="Поиск", class="form-control me-2", value=session['search_text']) }}  <!-- value сохраняет предыдущий запрос -->
                 {{ form.submit(class="btn btn-outline-success") }}
               </form>
             {% if current_user.is_authenticated %}

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, redirect, render_template, flash
+from flask import Blueprint, redirect, render_template, flash, session
 from flask_login import login_required, current_user
 
 from app.app import main_app
@@ -17,20 +17,30 @@ from data.paginate import Pagination
 revent = Blueprint('revent', __name__)
 
 
-@revent.route('/', methods=['POST', "GET"])
+@revent.route('/', methods=['POST', 'GET'])
 @revent.route('/page/<int:page>', methods=['GET', 'POST'])
 def root(page=1):
     '''Главная страница'''
     form = SearchForm()  # форма поиска
     db_sess = db_session.create_session()
+
+    if 'search_text' in session:
+        text_search = session['search_text']  # хранит запрос поиска
+    else:
+        session['search_text'] = ""
+        text_search = ''
+
     if form.validate_on_submit():
         text_search = form.search.data
-        a_events = db_sess.query(Event).join(Event.user).filter(
-            (Event.mini_description.like(f'%{text_search}%')) | (User.name.like(f'%{text_search}%')))  # поиск по вхождению в мини-описание или имя автора
-    else:
-        a_events = db_sess.query(Event).order_by(Event.num_likes.desc())  # сортировка (у которых лайков больше те первые)
+        session['search_text'] = text_search
+
+    a_events = db_sess.query(Event).join(Event.user).filter(
+        (Event.mini_description.like(f'%{text_search}%')) | (User.name.like(f'%{text_search}%'))).order_by(
+        Event.num_likes.desc())  # поиск по вхождению в мини-описание или имя автора, также сортировка по кол-ву лайков
 
     pagination = Pagination(a_events, page, 9)
+    if page not in pagination.pages_range:
+        pagination.page = 1
 
     return render_template('index.html', title='EventLinker', data=pagination, form=form)
 
