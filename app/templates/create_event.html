@@ -31,6 +31,9 @@
              {{ error }}
              </div>
               {% endfor %}
+              {% if event_id %}
+                  <p>Изображение, если вы не выберите новое: <img src="{{ url_for('revent.event_photo', id=event_id) }}" class="big-icon" alt="Иконка"></p>
+              {% endif %}
           </div>
           {{ form.submit(type="submit", class="btn btn-primary") }}
         </form>

@@ -14,7 +14,7 @@
                 {{ form.hidden_tag() }}
 
                 <div class="form-outline mb-4">
-                  {{ form.name(class="form-control form-control-lg") }}
+                  {{ form.name(class="form-control") }}
                   {% for error in form.name.errors %}
                   <div class="alert alert-danger" role="alert">
                   {{ error }}
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.email(class="form-control form-control-lg") }}
+                  {{ form.email(class="form-control") }}
                   {% for error in form.email.errors %}
                   <div class="alert alert-danger" role="alert">
                   {{ error }}
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.password(class="form-control form-control-lg") }}
+                  {{ form.password(class="form-control") }}
                   {% for error in form.password.errors %}
                   <div class="alert alert-danger" role="alert">
                   {{ error }}
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.password_again(class="form-control form-control-lg") }}
+                  {{ form.password_again(class="form-control") }}
                   {% for error in form.password_again.errors %}
                   <div class="alert alert-danger" role="alert">
                   {{ error }}
@@ -54,12 +54,12 @@
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.about(class="form-control form-control-lg") }}
+                  {{ form.about(class="form-control") }}
                   {{ form.about.label(class="form-label")}}
                 </div>
 
                 <div class="form-outline mb-4">
-                  {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b") }}
+                  {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b form-control") }}
                   <p>Avatar, если вы не выберите новый: <img src="{{ url_for('rusers.user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка"></p>
                 </div>
 
