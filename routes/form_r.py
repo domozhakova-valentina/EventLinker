@@ -142,4 +142,4 @@ def edit_event(event_id):
         db_sess.commit()
         flash("Данные события успешно изменены")
         return redirect('/')
-    return render_template('create_event.html', title='Редактирование мероприятия', form=form)
+    return render_template('create_event.html', title='Редактирование мероприятия', form=form, event_id=event_id)
