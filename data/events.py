@@ -10,6 +10,7 @@ class Event(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     photo = sqlalchemy.Column(sqlalchemy.LargeBinary)
+    event_type = sqlalchemy.Column(sqlalchemy.String)
     mini_description = sqlalchemy.Column(sqlalchemy.String)
     description = sqlalchemy.Column(sqlalchemy.String)
     create_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)

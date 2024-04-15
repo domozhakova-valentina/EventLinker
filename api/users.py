@@ -35,15 +35,20 @@ class UserResource(Resource):
         session = db_session.create_session()
         user = session.query(User).get(user_id)
         metrics = get_metrics(user_id)
-        return jsonify({'user': user.to_dict(only=('id', 'name', 'about', 'email')), 'metrics': metrics})
+        return jsonify(
+            {'user': user.to_dict(only=('id', 'name', 'about', 'email', 'location', 'date_of_birth', 'user_type')),
+             'metrics': metrics})
 
     def post(self, user_id):  # редактирование
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
         user = session.query(User).get(user_id)
         parser = reqparse.RequestParser()
+        parser.add_argument('user_type')
         parser.add_argument('name', required=True)
         parser.add_argument('about', required=True)
+        parser.add_argument('location')
+        parser.add_argument('date_of_birth')
         parser.add_argument('email', required=True)
         parser.add_argument('hashed_password', required=True)
         args = parser.parse_args()
@@ -53,7 +58,7 @@ class UserResource(Resource):
             if session.query(User).filter(User.email == args['email']).first():
                 abort(400, message=f'User with this email already exists')
 
-        user_args = ['name', 'about', 'email', 'hashed_password']
+        user_args = ['user_type', 'name', 'about', 'location', 'date_of_birth', 'email']
         for arg in user_args:
             if args[arg] is not None:
                 setattr(user, arg, args[arg])
@@ -80,16 +85,19 @@ class UsersListResource(Resource):
         users_list = []
         for user in users:
             metrics = get_metrics(user.id)  # Получаем метрики для пользователя
-            user_dict = user.to_dict(only=('id', 'name', 'about', 'email'))
+            user_dict = user.to_dict(only=('id', 'name', 'about', 'email', 'location', 'date_of_birth', 'user_type'))
             user_dict['metrics'] = metrics
             users_list.append(user_dict)  # Добавляем пользователя в список
         return jsonify({'users': users_list})
 
     def post(self):  # создание нового пользователя
         parser = reqparse.RequestParser()
+        parser.add_argument('user_type', required=True)
         parser.add_argument('name', required=True)
         parser.add_argument('about', required=True)
         parser.add_argument('email', required=True)
+        parser.add_argument('location')
+        parser.add_argument('date_of_birth')
         parser.add_argument('hashed_password', required=True)
         args = parser.parse_args()
         db_sess = db_session.create_session()
@@ -100,9 +108,10 @@ class UsersListResource(Resource):
 
         session = db_session.create_session()
         user = User()
-        user.name = args['name']
-        user.about = args['about']
-        user.email = args['email']
+        user_args = ['user_type', 'name', 'about', 'location', 'date_of_birth', 'email']
+        for arg in user_args:
+            if args[arg] is not None:
+                setattr(user, arg, args[arg])
         user.set_password(args['hashed_password'])
         session.add(user)
         session.commit()

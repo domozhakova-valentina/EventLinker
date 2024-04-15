@@ -20,18 +20,19 @@ class EventResource(Resource):
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
         return jsonify({'event': event.to_dict(
-            only=('id', 'mini_description', 'description', 'create_date', 'num_likes', 'create_user'))})
+            only=('id', 'event_type', 'mini_description', 'description', 'create_date', 'num_likes', 'create_user'))})
 
     def post(self, event_id):  # редактирование события
         abort_if_event_not_found(event_id)
         session = db_session.create_session()
         event = session.query(Event).get(event_id)
         parser = reqparse.RequestParser()
+        parser.add_argument('event_type', required=True)
         parser.add_argument('mini_description', required=True)
         parser.add_argument('description', required=True)
         args = parser.parse_args()
 
-        events_args = ['mini_description', 'description']
+        events_args = ['event_type', 'mini_description', 'description']
         for arg in events_args:
             if args[arg] is not None:
                 setattr(event, arg, args[arg])
@@ -56,19 +57,22 @@ class EventsListResource(Resource):
             {
                 'events':
                     [item.to_dict(
-                        only=('id', 'mini_description', 'description', 'create_date', 'num_likes', 'create_user'))
+                        only=('id', 'event_type', 'mini_description', 'description', 'create_date', 'num_likes',
+                              'create_user'))
                         for item in events]
             }
         )
 
     def post(self):  # создание нового события
         parser = reqparse.RequestParser()
+        parser.add_argument('event_type', required=True)
         parser.add_argument('mini_description', required=True)
         parser.add_argument('description', required=True)
         parser.add_argument('create_user', required=True, type=int)
         args = parser.parse_args()
         session = db_session.create_session()
         event = Event()
+        event.event_type = args['event_type']
         event.mini_description = args['mini_description']
         event.description = args['description']
         event.create_date = datetime.now()

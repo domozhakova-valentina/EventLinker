@@ -34,6 +34,7 @@ def root():
             if text_search in event['mini_description'] or event['create_user'] in users_id:
                 data['events'].append(
                     {'id': event['id'],
+                     'event_type': event['event_type'],
                      "mini_description": event['mini_description'],
                      "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
                      "create_date": event['create_date']})

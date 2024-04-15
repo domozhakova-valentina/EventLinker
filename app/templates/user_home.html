@@ -54,6 +54,24 @@
                 <p class="font-italic mb-1">{{ current_user.about }}</p>
               </div>
             </div>
+            {% if current_user.location %}
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Location</p>
+                <div class="p-4" style="background-color: #f8f9fa;">
+                  <p class="font-italic mb-1">{{ current_user.location }}</p>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if current_user.date_of_birth %}
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Date of Birth</p>
+                <div class="p-4" style="background-color: #f8f9fa;">
+                  <p class="font-italic mb-1">{{ current_user.date_of_birth }}</p>
+                </div>
+              </div>
+            {% endif %}
+
             <div class="d-flex justify-content-between align-items-center mb-4">
               <p class="lead fw-normal mb-0"><a href="/events/{{ current_user.id }}" class="text-muted">Ваши созданные мероприятия</a></p>
             </div>
