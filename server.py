@@ -29,5 +29,4 @@ def load_user(user_id):
 
 
 if __name__ == '__main__':
-    '''Строчка. чтобы создать базу данных'''
     serve(main_app, host="127.0.0.1", port=8000)
