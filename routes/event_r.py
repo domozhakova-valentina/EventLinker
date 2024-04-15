@@ -83,8 +83,9 @@ def event(id, page=1):
                                             User.id == Event.create_user).filter(
         Event.id == id).first()  # создатель события из БД
     db_sess = db_session.create_session()
-    comments = db_sess.query(Comment).filter(Comment.event_id == id)  # список данных каждого комментария
-    pagination = Pagination(comments, page)
+    comments = db_sess.query(Comment).filter(Comment.event_id == id).order_by(
+        Comment.create_date.desc())  # список данных комментариев отсортированных по дате
+    pagination = Pagination(comments, page, 5)  # на одной странице максимум 5 комментариев
     if page not in pagination.pages_range:
         pagination.page = 1
     likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
