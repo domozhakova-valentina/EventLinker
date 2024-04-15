@@ -12,9 +12,12 @@ class CheckUsersApi:
     def check_post_delete(self):
         print("Тест создания нового пользователя:")
         response = requests.post('http://127.0.0.1:8000/api/v2/users', json={
+            'user_type': 'User',
             'name': 'Test User',
             'about': 'Test About',
             'email': 'test@example.com',
+            'location': 'test location',
+            'date of birth': '03.10.1997',
             'hashed_password': 'test_password'
         })
 
@@ -29,6 +32,8 @@ class CheckUsersApi:
             'name': 'Test User New',
             'about': 'Test About New',
             'email': 'test_changed@example.com',
+            'location': 'testland',
+            'date of birth': '29.08.1958',
             'hashed_password': 'test_password_new'
         })
 
