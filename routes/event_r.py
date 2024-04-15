@@ -63,8 +63,8 @@ def event_photo(id):
     return main_app.response_class(event.photo, mimetype='application/octet-stream')
 
 
-@revent.route('/event/<int:id>', methods=['POST', "GET"])
-def event(id):
+@revent.route('/event/<int:id>/page/<int:page>', methods=['POST', "GET"])
+def event(id, page=1):
     '''Просмотр события (мероприятия)'''
     form = AddComment()
     if form.validate_on_submit():
@@ -77,13 +77,16 @@ def event(id):
         session.add(comment)
         session.commit()
         session.close()
-        return redirect(f'/event/{id}')
+        return redirect(f'/event/{id}/page/{1}')
     db_sess = db_session.create_session()
     creator_user = db_sess.query(User).join(Event,
                                             User.id == Event.create_user).filter(
         Event.id == id).first()  # создатель события из БД
     db_sess = db_session.create_session()
-    comments = db_sess.query(Comment).filter(Comment.event_id == id).all()  # список данных каждого комментария
+    comments = db_sess.query(Comment).filter(Comment.event_id == id)  # список данных каждого комментария
+    pagination = Pagination(comments, page)
+    if page not in pagination.pages_range:
+        pagination.page = 1
     likes = db_sess.query(Event.num_likes).filter(Event.id == id).first()[
         0]  # количество лайков из БД
     event = db_sess.query(Event).get(id)
@@ -95,7 +98,7 @@ def event(id):
     flag_like = "true" if like else "false"  # поставлен ли на этот пост лайк у пользователя
     return render_template('event.html', title="Просмотр события (мероприятия)", form=form,
                            likes=likes, event_id=id, inf_event=event,
-                           creator=creator_user, comments=comments, flag_like=flag_like)
+                           creator=creator_user, comments=comments, flag_like=flag_like, data=pagination)
 
 
 @revent.route('/delete_event/<int:event_id>')
@@ -134,7 +137,7 @@ def delete_comment(user_id, comment_id, event_id):
         except Exception as ex:
             flash("Не удалось удалить запись!")
         session.close()
-        return redirect(f"/event/{event_id}")
+        return redirect(f"/event/{event_id}/page/{1}")
     session.close()
     flash("Вы не имеете право на удаление этого комментария!")
-    return redirect(f"/event/{event_id}")
+    return redirect(f"/event/{event_id}/page/{1}")

@@ -35,7 +35,7 @@
                     <p class="card-text">Автор: {{ event_data.user.name }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
-                        <a href="{{ url_for('revent.event', id=event_data.id) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+                        <a href="{{ url_for('revent.event', id=event_data.id, page=1) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
                       <small class="text-body-secondary">{{ event_data.create_data }}</small>
                     </div>
