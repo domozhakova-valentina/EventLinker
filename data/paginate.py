@@ -6,7 +6,8 @@ class Pagination:
         self.previous_page_number = page - 1
         self.next_page_number = page + 1
         total_count = self.query.order_by(None).count()
-        self.pages_range = range(1, total_count // self.per_page + (total_count % self.per_page > 0) + 1)  # диапазон кол-во страниц
+        self.num_pages = total_count // self.per_page + (total_count % self.per_page > 0)
+        self.pages_range = range(1, self.num_pages + 1)  # диапазон кол-во страниц
 
     def items(self):
         """Информация страницы"""

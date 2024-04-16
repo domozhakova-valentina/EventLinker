@@ -38,9 +38,9 @@ def root(page=1):
         (Event.mini_description.like(f'%{text_search}%')) | (User.name.like(f'%{text_search}%'))).order_by(
         Event.num_likes.desc())  # поиск по вхождению в мини-описание или имя автора, также сортировка по кол-ву лайков
 
-    pagination = Pagination(a_events, page, 9)
-    if page not in pagination.pages_range:
-        pagination.page = 1
+    pagination = Pagination(a_events, page, 9)  # на каждой странице по 9 постов
+    if page not in pagination.pages_range:  # если пришёл несуществующий номер страницы
+        pagination = Pagination(a_events, 1, 9)
 
     return render_template('index.html', title='EventLinker', data=pagination, form=form)
 

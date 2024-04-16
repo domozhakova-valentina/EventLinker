@@ -52,25 +52,50 @@
             {% else %}
               <li class="page-item">
             {% endif %}
-              <a class="page-link" href="/page/{{ data.previous_page_number }}">Предыдущая</a>
+              <a class="page-link" href="/page/{{ data.previous_page_number }}"><</a>
             </li>
 
-            {% for page in data.pages_range %}
-              {% if page == data.page %}
-                <li class="page-item active">
-              {% else %}
+            {% if data.num_pages > 4 %} {# Если общее количество страниц больше 4 #}
+              {% if data.page > 2 %}
                 <li class="page-item">
+                  <a class="page-link" href="/page/1">...</a>
+                </li>
               {% endif %}
-                <a class="page-link" href="/page/{{ page }}">{{ page }}</a>
-              </li>
-            {% endfor %}
+              {% for page in data.pages_range %}
+                {% if page > data.page - 2 and page < data.page + 2 %}
+                  {% if page == data.page %}
+                    <li class="page-item active">
+                  {% else %}
+                    <li class="page-item">
+                  {% endif %}
+                    <a class="page-link" href="/page/{{ page }}">{{ page }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if data.page < data.num_pages - 1 %}
+                <li class="page-item">
+                  <a class="page-link" href="/page/{{ data.num_pages }}">...</a>
+                </li>
+              {% endif %}
+            {% else %}
+              {% for page in data.pages_range %}
+                {% if page == data.page %}
+                  <li class="page-item active">
+                {% else %}
+                  <li class="page-item">
+                {% endif %}
+                  <a class="page-link" href="/page/{{ page }}">{{ page }}</a>
+                </li>
+              {% endfor %}
+            {% endif %}
 
             {% if not data.has_next() %}
               <li class="page-item disabled">
             {% else %}
               <li class="page-item">
             {% endif %}
-              <a class="page-link" href="/page/{{ data.next_page_number }}">Следующая</a>
+              <a class="page-link" href="/page/{{ data.next_page_number }}">></a>
             </li>
           </ul>
         </nav>
