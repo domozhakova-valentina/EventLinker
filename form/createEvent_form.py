@@ -9,10 +9,10 @@ class CreateForm(FlaskForm):
                       default='...',
                       validators=[FileAllowed(['jpg', 'png'],
                                               message='Принимаются файлы в расширение .jpg и .png'), ])  # фотография карточки, если не укажет, то по умолчанию будет
-    event_type = SelectField('Choose the type of the event:',
-                             choices=[('concert', 'Концерт'), ('excursion', 'Экскурсия'), ('for kids', 'Для детей'),
-                                      ('sports', 'Спорт'), ('attractions', 'Развлечения'), ('studies', 'Учеба'),
-                                      ('other', 'Другое')],
+    event_type = SelectField('Выберите тип события:',
+                             choices=[('концерт', 'Концерт'), ('экскурсия', 'Экскурсия'), ('для детей', 'Для детей'),
+                                      ('спорт', 'Спорт'), ('развлечения', 'Развлечения'), ('учеба', 'Учеба'),
+                                      ('прочее', 'Прочее')],
                              validators=[DataRequired(
                                  message="Это поле является обязательным.")])  # Выбор типа события
     mini_description = TextAreaField("Имя и вводное описание мероприятия:",

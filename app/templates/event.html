@@ -13,6 +13,8 @@
                                 <h5><a href="/user/{{ inf_event['create_user'] }}" class="profile-link">{{ creator.name }}</a>
                                     <span>id: {{ inf_event['id'] }}</span></h5>
                                 <p class="text-muted">{{ inf_event['create_date'].strftime('%d.%m.%Y %H:%M') }}</p>
+                                <span  style="font-size: 17px;">Type: {{ inf_event['event_type'] }}</span></h5>
+                                <p>
                             </div>
                             <div class="lidi">
                                 {% if current_user.is_authenticated and flag_like == "false" %}

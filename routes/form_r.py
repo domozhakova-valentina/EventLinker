@@ -144,6 +144,7 @@ def edit_event(event_id):
                 event.photo = file.read()
         except AttributeError:
             event.photo = file
+        event.event_type = form.event_type.data
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         db_sess.commit()

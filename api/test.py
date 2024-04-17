@@ -56,6 +56,7 @@ class CheckEventsApi:
     def check_post_delete(self):
         print("Тест создания нового события:")
         response = requests.post('http://127.0.0.1:8000/api/v2/events', json={
+            'event_type': 'прочее',
             'mini_description': 'test mini_description',
             'description': 'test description',
             'create_user': 1
@@ -69,6 +70,7 @@ class CheckEventsApi:
         test_event_id = response.json()['id']
         print("Изменение данных о тестовом событии:")
         response = requests.post(f'http://127.0.0.1:8000/api/v2/events/{test_event_id}', json={
+            'event_type': 'прочее',
             'mini_description': 'test mini_description new',
             'description': 'test description new'
         })
