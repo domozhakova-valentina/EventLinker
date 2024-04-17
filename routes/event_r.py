@@ -23,26 +23,39 @@ def root():
     db_sess = db_session.create_session()
     if form.validate_on_submit():
         text_search = form.search.data
-        users = get(f'http://{host}:{port}/api/v2/users').json()['users']  # все существующие пользователи
+        selected_types = form.get_selected_event_types()  # список типов событий, которые выбрал пользователь
+        if text_search:
+            users = get(f'http://{host}:{port}/api/v2/users').json()['users']  # все существующие пользователи
+            # ищем вхождения строки в мини-описание или имя автора
+            users_id = []
+            for user in users:
+                if text_search in user['name']:
+                    users_id.append(user['id'])
+            for event in events:
+                if (text_search in event['mini_description'] or event['create_user'] in users_id) and \
+                        event['event_type'] in selected_types:
+                    data['events'].append(
+                        {'id': event['id'],
+                         'event_type': event['event_type'],
+                         "mini_description": event['mini_description'],
+                         "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
+                         "create_date": event['create_date']})
 
-        # ищем вхождения строки в мини-описание или имя автора
-        users_id = []
-        for user in users:
-            if text_search in user['name']:
-                users_id.append(user['id'])
-        for event in events:
-            if text_search in event['mini_description'] or event['create_user'] in users_id:
-                data['events'].append(
-                    {'id': event['id'],
-                     'event_type': event['event_type'],
-                     "mini_description": event['mini_description'],
-                     "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
-                     "create_date": event['create_date']})
+        else:
+            for event in events:
+                if event['event_type'] in selected_types:
+                    data['events'].append(
+                        {'id': event['id'],
+                         'event_type': event['event_type'],
+                         "mini_description": event['mini_description'],
+                         "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
+                         "create_date": event['create_date']})
 
     else:  # отображение всех существующих событий, если форма поиска пустая
         for event in events:
             data['events'].append(
                 {'id': event['id'],
+                 'event_type': event['event_type'],
                  "mini_description": event['mini_description'],
                  "username": db_sess.query(User.name).filter(User.id == event['create_user']).first()[0],
                  "create_date": event['create_date']})
