@@ -85,9 +85,6 @@ class CheckEventsApi:
 
 
 class CheckCommentsApi:
-    def check_get_list(self):
-        print(get('http://127.0.0.1:8000/api/v2/comments').json())
-
     def check_get_item(self, id):
         print(get(f'http://127.0.0.1:8000/api/v2/comments/{id}').json())
 
@@ -127,6 +124,7 @@ for table in d.keys():
     for id in range(1, 3):
         print(f'Информация об элементе таблицы "{table}" c id={id}:')
         d[table].check_get_item(id)
-    print(f'Информация о всех {table}:')
-    d[table].check_get_list()
+    if table != "comments":
+        print(f'Информация о всех {table}:')
+        d[table].check_get_list()
     d[table].check_post_delete()

@@ -87,60 +87,62 @@
                                 </form>
                             </div>
                             {% endif %}
-                                <nav aria-label="навигация по комментариям" class="nav_page">
-                                  <ul class="pagination justify-content-end">
-                                    {% if not data.has_previous() %}
-                                      <li class="page-item disabled">
-                                    {% else %}
-                                      <li class="page-item">
-                                    {% endif %}
-                                      <a class="page-link" href="/event/{{ event_id }}/page/{{ data.previous_page_number }}"><</a>
-                                    </li>
-
-                                    {% if data.num_pages > 4 %} {# Если общее количество страниц больше 4 #}
-                                      {% if data.page > 2 %}
-                                        <li class="page-item">
-                                          <a class="page-link" href="/event/{{ event_id }}/page/1">...</a>
-                                        </li>
-                                      {% endif %}
-                                      {% for page in data.pages_range %}
-                                        {% if page > data.page - 2 and page < data.page + 2 %}
-                                          {% if page == data.page %}
-                                            <li class="page-item active">
-                                          {% else %}
-                                            <li class="page-item">
-                                          {% endif %}
-                                            <a class="page-link" href="/event/{{ event_id }}/page/{{ page }}">{{ page }}</a>
-                                          </li>
-                                        {% endif %}
-                                      {% endfor %}
-
-                                      {% if data.page < data.num_pages - 1 %}
-                                        <li class="page-item">
-                                          <a class="page-link" href="/event/{{ event_id }}/page/{{ data.num_pages }}">...</a>
-                                        </li>
-                                      {% endif %}
-                                    {% else %}
-                                      {% for page in data.pages_range %}
-                                        {% if page == data.page %}
-                                          <li class="page-item active">
+                                {% if data.num_pages > 0 %}
+                                    <nav aria-label="навигация по комментариям" class="nav_page">
+                                      <ul class="pagination justify-content-end">
+                                        {% if not data.has_previous() %}
+                                          <li class="page-item disabled">
                                         {% else %}
                                           <li class="page-item">
                                         {% endif %}
-                                          <a class="page-link" href="/event/{{ event_id }}/page/{{ page }}">{{ page }}</a>
+                                          <a class="page-link" href="/event/{{ event_id }}/page/{{ data.previous_page_number }}"><</a>
                                         </li>
-                                      {% endfor %}
-                                    {% endif %}
 
-                                    {% if not data.has_next() %}
-                                      <li class="page-item disabled">
-                                    {% else %}
-                                      <li class="page-item">
-                                    {% endif %}
-                                      <a class="page-link" href="/event/{{ event_id }}/page/{{ data.next_page_number }}">></a>
-                                    </li>
-                                  </ul>
-                                </nav>
+                                        {% if data.num_pages > 4 %} {# Если общее количество страниц больше 4 #}
+                                          {% if data.page > 2 %}
+                                            <li class="page-item">
+                                              <a class="page-link" href="/event/{{ event_id }}/page/1">...</a>
+                                            </li>
+                                          {% endif %}
+                                          {% for page in data.pages_range %}
+                                            {% if page > data.page - 2 and page < data.page + 2 %}
+                                              {% if page == data.page %}
+                                                <li class="page-item active">
+                                              {% else %}
+                                                <li class="page-item">
+                                              {% endif %}
+                                                <a class="page-link" href="/event/{{ event_id }}/page/{{ page }}">{{ page }}</a>
+                                              </li>
+                                            {% endif %}
+                                          {% endfor %}
+
+                                          {% if data.page < data.num_pages - 1 %}
+                                            <li class="page-item">
+                                              <a class="page-link" href="/event/{{ event_id }}/page/{{ data.num_pages }}">...</a>
+                                            </li>
+                                          {% endif %}
+                                        {% else %}
+                                          {% for page in data.pages_range %}
+                                            {% if page == data.page %}
+                                              <li class="page-item active">
+                                            {% else %}
+                                              <li class="page-item">
+                                            {% endif %}
+                                              <a class="page-link" href="/event/{{ event_id }}/page/{{ page }}">{{ page }}</a>
+                                            </li>
+                                          {% endfor %}
+                                        {% endif %}
+
+                                        {% if not data.has_next() %}
+                                          <li class="page-item disabled">
+                                        {% else %}
+                                          <li class="page-item">
+                                        {% endif %}
+                                          <a class="page-link" href="/event/{{ event_id }}/page/{{ data.next_page_number }}">></a>
+                                        </li>
+                                      </ul>
+                                    </nav>
+                                {% endif %}
                         </div>
                     </div>
                     {% if current_user.is_authenticated and current_user.id == creator.id %}

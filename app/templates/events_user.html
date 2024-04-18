@@ -4,58 +4,58 @@
     <main>
       <h1 class="text-center">Мероприятия (события) пользователя - <span class="text-primary">{{ user["name"] }}</span>:</h1>
       <div class="album py-5 bg-body-tertiary">
-        {% if data %}
-        <div class="container">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-              {% for event_data in data.items() %}
-              <div class="col">
-                <div class="card shadow-sm">
-                  <img src="{{ url_for('revent.event_photo', id=event_data.id) }}" alt="Изображение мероприятия" class="card-img-top">
-                  <div class="card-body">
-                    <p class="card-text">{{ event_data.mini_description|safe }}</p>  <!--'|safe' для преобразование текста в код html-->
-                    <p class="card-text">Автор: {{ event_data.user.name }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="btn-group">
-                        <a href="/event/{{ event_data.id }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+        {% if data.items() %}
+          <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for event_data in data.items() %}
+                <div class="col">
+                  <div class="card shadow-sm">
+                    <img src="{{ url_for('revent.event_photo', id=event_data.id) }}" alt="Изображение мероприятия" class="card-img-top">
+                    <div class="card-body">
+                      <p class="card-text">{{ event_data.mini_description|safe }}</p>  <!--'|safe' для преобразование текста в код html-->
+                      <p class="card-text">Автор: {{ event_data.user.name }}</p>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                          <a href="/event/{{ event_data.id }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
+                        </div>
+                        <small class="text-body-secondary">{{ event_data.create_data }}</small>
+                        <div class="d-flex justify-content-end mt-auto">Тип события: {{ event_data.event_type }}</div>
                       </div>
-                      <small class="text-body-secondary">{{ event_data.create_data }}</small>
-                      <div class="d-flex justify-content-end mt-auto">Тип события: {{ event_data.event_type }}</div>
                     </div>
                   </div>
                 </div>
-              </div>
-              {% endfor %}
+                {% endfor %}
+            </div>
           </div>
-        </div>
-        <nav aria-label="навигация по страницам" class="nav_page">
-          <ul class="pagination justify-content-end">
-            {% if not data.has_previous() %}
-              <li class="page-item disabled">
-            {% else %}
-              <li class="page-item">
-            {% endif %}
-              <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.previous_page_number }}">Предыдущая</a>
-            </li>
-
-            {% for page in data.pages_range %}
-              {% if page == data.page %}
-                <li class="page-item active">
+          <nav aria-label="навигация по страницам" class="nav_page">
+            <ul class="pagination justify-content-end">
+              {% if not data.has_previous() %}
+                <li class="page-item disabled">
               {% else %}
                 <li class="page-item">
               {% endif %}
-                <a class="page-link" href="/events/{{ user['id'] }}/page/{{ page }}">{{ page }}</a>
+                <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.previous_page_number }}">Предыдущая</a>
               </li>
-            {% endfor %}
 
-            {% if not data.has_next() %}
-              <li class="page-item disabled">
-            {% else %}
-              <li class="page-item">
-            {% endif %}
-              <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.next_page_number }}">Следующая</a>
-            </li>
-          </ul>
-        </nav>
+              {% for page in data.pages_range %}
+                {% if page == data.page %}
+                  <li class="page-item active">
+                {% else %}
+                  <li class="page-item">
+                {% endif %}
+                  <a class="page-link" href="/events/{{ user['id'] }}/page/{{ page }}">{{ page }}</a>
+                </li>
+              {% endfor %}
+
+              {% if not data.has_next() %}
+                <li class="page-item disabled">
+              {% else %}
+                <li class="page-item">
+              {% endif %}
+                <a class="page-link" href="/events/{ user['id'] }}/page/{{ data.next_page_number }}">Следующая</a>
+              </li>
+            </ul>
+          </nav>
         {% else %}
             <h3 class="text-center"><span>У пользователя нет мероприятий (событий).</span></h3>
         {% endif %}
