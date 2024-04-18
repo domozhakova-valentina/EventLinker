@@ -6,7 +6,7 @@
         <div class="row align-items-center flex-row-reverse">
             <div class="col-lg-6">
                 <div class="about-text go-to">
-                    <h3 class="dark-color">About Me</h3>
+                    <h3 class="dark-color">About {{ current_user.user_type }}</h3>
                     <h6 class="theme-color lead"><a href="/events/{{ current_user.id }}/page/1" class="text-muted">Ваши созданные мероприятия</a></h6>
                     <p>{{ current_user.about }}</p>
                     <div class="row about-list">
@@ -28,12 +28,28 @@
                                 <p>{{ current_user.email }}</p>
                             </div>
                         </div>
+                        {% if current_user.location %}
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <label>Location</label>
+                                    <p>{{ current_user.location }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if current_user.date_of_birth %}
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <label>Birthday</label>
+                                    <p>{{ current_user.date_of_birth }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="col-">
-                          <a type="button" class="btn btn-outline-dark" data-mdb-ripple-color="dark" href="\edit_profile"
+                          <a type="button" class="btn btn-outline-dark mb-1" data-mdb-ripple-color="dark" href="\edit_profile"
                             style="z-index: 1;">
                             Редактировать профиль
                           </a>
-                          <a type="button" class="btn btn-danger center" data-mdb-ripple-color="dark"
+                          <a type="button" class="btn btn-danger center mb-1" data-mdb-ripple-color="dark"
                               style="z-index: 1;" href="/logout">
                               ВЫЙТИ
                           </a>

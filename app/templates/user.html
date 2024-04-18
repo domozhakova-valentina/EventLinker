@@ -6,7 +6,7 @@
         <div class="row align-items-center flex-row-reverse">
             <div class="col-lg-6">
                 <div class="about-text go-to">
-                    <h3 class="dark-color">About Me</h3>
+                    <h3 class="dark-color">About {{ user["user_type"] }}</h3>
                     <h6 class="theme-color lead"><a href="/events/{{ user['id'] }}/page/1" class="text-muted">Созданные мероприятия пользователя</a></h6>
                     <p>{{ user["about"] }}</p>
                     <div class="row about-list">
@@ -22,6 +22,22 @@
                                 <p>#{{ user["id"] }}</p>
                             </div>
                         </div>
+                        {% if current_user.location %}
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <label>Location</label>
+                                    <p>{{ current_user.location }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if current_user.date_of_birth %}
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <label>Birthday</label>
+                                    <p>{{ current_user.date_of_birth }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

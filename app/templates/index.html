@@ -9,9 +9,10 @@
             <h1 class="fw-light">Event Linker</h1>
             <p class="lead text-body-secondary">Эта платформа организации мероприятий. Участвуйте в мероприятиях. Создавайте свои мероприятия и информируйте о них пользователей.</p>
             <p>
-              <form method="POST" action="/" class="d-flex">
+              <form method="POST" action="/" class="d-flex flex-column me-3">
+                <div class="col mb-3 d-flex">
                 {{ form.hidden_tag() }}
-                {{ form.search(placeholder="Поиск", aria_label="Поиск", class="form-control me-2", value=session['search_text']) }}  <!-- value сохраняет предыдущий запрос -->
+                {{ form.search(placeholder="Поиск по описанию и создателю", aria_label="Поиск", class="form-control me-2", value=session['search_text']) }}  <!-- value сохраняет предыдущий запрос -->
                 {{ form.submit(class="btn btn-outline-success") }}
                  </div>
                 <div class="col mb-3 d-flex">
@@ -71,12 +72,12 @@
                   <div class="card-body">
                     <p class="card-text">{{ event_data.mini_description|safe }}</p>  <!--'|safe' для преобразование текста html в код html-->
                     <p class="card-text">Автор: {{ event_data.user.name }}</p>
+                    <p class="card-text">Тип события: {{ event_data.event_type }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
                         <a href="{{ url_for('revent.event', id=event_data.id, page=1) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
-                      <small class="text-body-secondary">{{ event_data.create_data }}</small>
-                      <div class="d-flex justify-content-end mt-auto">Тип события: {{ event_data.event_type }}</div>
+                      <small class="text-body-secondary">{{ event_data.create_date.strftime('%Y.%m.%d') }}</small>
                     </div>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, BooleanField
 
 
 class SearchForm(FlaskForm):
-    search = StringField('Поиск', render_kw={"placeholder": "Поиск", "aria-label": "Поиск"})
+    search = StringField('Поиск', render_kw={"placeholder": "Поиск по описанию и создателю", "aria-label": "Поиск"})
     concert = BooleanField('Концерты')
     excursion = BooleanField('Экскурсии')
     sports = BooleanField('Спорт')
@@ -11,7 +11,7 @@ class SearchForm(FlaskForm):
     for_kids = BooleanField('Для детей')
     studies = BooleanField('Учеба')
     other = BooleanField('Прочее')
-    submit = SubmitField('Поиск и сортировка')
+    submit = SubmitField('Поиск')
 
     def get_selected_event_types(self):
         selected_event_types = []
