@@ -13,10 +13,48 @@
                 {{ form.hidden_tag() }}
                 {{ form.search(placeholder="Поиск", aria_label="Поиск", class="form-control me-2", value=session['search_text']) }}  <!-- value сохраняет предыдущий запрос -->
                 {{ form.submit(class="btn btn-outline-success") }}
+                 </div>
+                <div class="col mb-3 d-flex">
+                    <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="collapse" data-bs-target="#eventTypeCollapse" aria-expanded="false" aria-controls="eventTypeCollapse">
+                        Выберите тип события
+                    </button>
+                    <div class="collapse" id="eventTypeCollapse">
+                        <div class="form-check">
+                            {{ form.concert(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.concert.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.excursion(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.excursion.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.sports(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.sports.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.for_kids(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.for_kids.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.attractions(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.attractions.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.studies(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.studies.label.text }}</label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.other(class="form-check-input") }}
+                            <label class="form-check-label">{{ form.other.label.text }}</label>
+                        </div>
+                    </div>
+                    {% if current_user.is_authenticated %}
+                        <div class="ms-auto">
+                            <a href="/create_event" class="btn btn-outline-primary">Создать мероприятие</a>
+                        </div>
+                    {% endif %}
+                </div>
               </form>
-            {% if current_user.is_authenticated %}
-              <a href="/create_event" class="btn btn-primary btn-sm my-2 float-end">Создать мероприятие</a>
-            {% endif %}
             </p>
           </div>
         </div>
@@ -38,6 +76,7 @@
                         <a href="{{ url_for('revent.event', id=event_data.id, page=1) }}" class="btn btn-sm btn-outline-secondary">Перейти</a>  <!--ссылка на полное описание мероприятия-->
                       </div>
                       <small class="text-body-secondary">{{ event_data.create_data }}</small>
+                      <div class="d-flex justify-content-end mt-auto">Тип события: {{ event_data.event_type }}</div>
                     </div>
                   </div>
                 </div>

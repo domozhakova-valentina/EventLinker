@@ -42,7 +42,10 @@ def register():
         user = User(
             name=form.name.data,
             email=form.email.data,
-            about=form.about.data
+            about=form.about.data,
+            location=form.location.data,
+            date_of_birth=form.date_of_birth.data,
+            user_type=form.user_type.data
         )
         file = form.photo.data
         if not file:
@@ -68,6 +71,7 @@ def create_event():
         if not file:
             file = open("static/img/event_photo.jpg", "rb")
         event.photo = file.read()
+        event.event_type = form.event_type.data
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         if not db_sess.is_modified(current_user):
@@ -94,6 +98,9 @@ def edit_profile():
         form.name.data = current_user.name
         form.email.data = current_user.email
         form.about.data = current_user.about
+        form.user_type.data = current_user.user_type
+        form.location.data = current_user.location
+        form.date_of_birth.data = current_user.date_of_birth
         form.photo.data = current_user.photo
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -104,6 +111,9 @@ def edit_profile():
             user.name = form.name.data
             user.email = form.email.data
             user.about = form.about.data
+            user.location = form.location.data
+            user.date_of_birth = form.date_of_birth.data
+            user.user_type = form.user_type.data
             file = form.photo.data
             if file:
                 user.photo = file.read()
@@ -128,6 +138,7 @@ def edit_event(event_id):
         # сохранение прошлых полей
         db_sess = db_session.create_session()
         event = db_sess.query(Event).get(event_id)
+        form.event_type.data = event.event_type
         form.mini_description.data = event.mini_description
         form.description.data = event.description
         form.photo.data = event.photo
@@ -142,6 +153,7 @@ def edit_event(event_id):
                 event.photo = file.read()
         except AttributeError:
             event.photo = file
+        event.event_type = form.event_type.data
         event.mini_description = form.mini_description.data
         event.description = form.description.data
         db_sess.commit()

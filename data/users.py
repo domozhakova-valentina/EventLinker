@@ -11,9 +11,12 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
+    user_type = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     photo = sqlalchemy.Column(sqlalchemy.LargeBinary)
     about = sqlalchemy.Column(sqlalchemy.String)
+    location = sqlalchemy.Column(sqlalchemy.String)
+    date_of_birth = sqlalchemy.Column(sqlalchemy.Date)
     email = sqlalchemy.Column(sqlalchemy.String, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     events = orm.relationship("Event", back_populates='user', cascade='save-update, merge, delete')

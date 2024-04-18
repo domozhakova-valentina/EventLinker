@@ -13,15 +13,29 @@
               <form action="" method="post" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
 
-                <div class="form-outline mb-4">
-                  {{ form.name(class="form-control") }}
-                  {% for error in form.name.errors %}
-                  <div class="alert alert-danger" role="alert">
-                  {{ error }}
+                <div class="row">
+                  <div class="col">
+                    <div class="form-outline mb-4">
+                      {{ form.user_type(class="form-select form-select-lg") }}
+                      {% for error in form.user_type.errors %}
+                      <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                      </div>
+                      {% endfor %}
+                      {{ form.user_type.label(class="form-label")}}
+                    </div>
                   </div>
-                  {% endfor %}
-                  {{ form.name.label(class="form-label")}}
-                </div>
+                  <div class="col">
+                    <div class="form-outline mb-4">
+                      {{ form.name(class="form-control") }}
+                      {% for error in form.name.errors %}
+                      <div class="alert alert-danger" role="alert">
+                      {{ error }}
+                      </div>
+                      {% endfor %}
+                      {{ form.name.label(class="form-label")}}
+                    </div>
+                  </div>
 
                 <div class="form-outline mb-4">
                   {{ form.email(class="form-control") }}
@@ -59,6 +73,21 @@
                 </div>
 
                 <div class="form-outline mb-4">
+                  {{ form.location(class="form-control") }}
+                  {{ form.location.label(class="form-label")}}
+                </div>
+
+                <div class="form-outline mb-4">
+                  {{ form.date_of_birth(class="form-control", type="date") }}
+                  {% for error in form.date_of_birth.errors %}
+                  <div class="alert alert-danger" role="alert">
+                  {{ error }}
+                  </div>
+                  {% endfor %}
+                  {{ form.date_of_birth.label(class="form-label")}}
+                </div>
+
+                <div class="form-outline mb-4">
                   {{ form.photo.label }}: {{ form.photo(class="bg-gradient-b form-control") }}
                   <p>Avatar, если вы не выберите новый: <img src="{{ url_for('rusers.user_photo', id=current_user.id) }}" class="small-circle-icon" alt="Иконка"></p>
                 </div>
@@ -66,6 +95,7 @@
                 <div class="d-flex justify-content-center">
                   {{ form.submit(type="submit", class="btn btn-success btn-block btn-lg gradient-custom-4 text-body") }}
                 </div>
+
               </form>
 
             </div>
