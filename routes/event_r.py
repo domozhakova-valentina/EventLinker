@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import Blueprint, redirect, render_template, flash, session
 from flask_login import login_required, current_user
 
-from app.app import main_app
 from data import db_session
 from data.comments import Comment
 from data.events import Event
@@ -66,7 +65,7 @@ def events(id_user, page=1):
 def event_photo(id):
     db_sess = db_session.create_session()
     event = db_sess.query(Event).filter(Event.id == id).first()
-    return main_app.response_class(event.photo, mimetype='application/octet-stream')
+    return revent.response_class(event.photo, mimetype='application/octet-stream')
 
 
 @revent.route('/event/<int:id>/page/<int:page>', methods=['POST', "GET"])

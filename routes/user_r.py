@@ -1,7 +1,6 @@
 from flask import Blueprint, redirect, render_template, flash
 from flask_login import login_required, logout_user, current_user
 
-from app.app import main_app
 from data import db_session
 from data.comments import Comment
 from data.events import Event
@@ -41,7 +40,7 @@ def home_user():
 def user_photo(id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == id).first()
-    return main_app.response_class(user.photo, mimetype='application/octet-stream')
+    return rusers.response_class(user.photo, mimetype='application/octet-stream')
 
 
 @rusers.route('/user/<int:user_id>', methods=['GET', 'POST'])
