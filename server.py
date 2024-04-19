@@ -1,4 +1,3 @@
-from waitress import serve
 from app.app import main_app
 
 from flask_login import LoginManager
@@ -29,4 +28,4 @@ def load_user(user_id):
 
 
 if __name__ == '__main__':
-    serve(main_app, host="127.0.0.1", port=8000)
+    main_app.run()
