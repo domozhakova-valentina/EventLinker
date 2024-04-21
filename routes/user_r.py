@@ -65,10 +65,16 @@ def user(user_id):
 def delete_user(user_id):
     if current_user.id == user_id:  # проверка, что удаляет пользователь самого себя
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.id == user_id).first()
+        user = db_sess.query(User).get(user_id)
+        for id_event in db_sess.query(Like.event_id).filter(user_id == Like.user_id).all():
+            # удаление вмести с пользователем всех лайков
+            event = db_sess.query(Event).get(id_event)
+            if event:
+                event.num_likes -= 1
         db_sess.delete(user)
         db_sess.commit()
         flash('Пользователь удален')
         return redirect('/')
     flash('У вас нет права удалять этого пользователя!')
     return redirect('/')
+
