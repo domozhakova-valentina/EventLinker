@@ -4,8 +4,8 @@ from wtforms import StringField, SubmitField, BooleanField
 
 class SearchForm(FlaskForm):
     search = StringField('Поиск', render_kw={"placeholder": "Поиск по описанию и создателю", "aria-label": "Поиск"})
-    concert = BooleanField('Концерты')
-    excursion = BooleanField('Экскурсии')
+    concert = BooleanField('Концерт')
+    excursion = BooleanField('Экскурсия')
     sports = BooleanField('Спорт')
     attractions = BooleanField('Развлечения')
     for_kids = BooleanField('Для детей')

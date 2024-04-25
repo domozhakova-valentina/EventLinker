@@ -22,19 +22,19 @@
                                 <p>#{{ user["id"] }}</p>
                             </div>
                         </div>
-                        {% if current_user.location %}
+                        {% if user.location %}
                             <div class="col-md-6">
                                 <div class="media">
                                     <label>Location</label>
-                                    <p>{{ current_user.location }}</p>
+                                    <p>{{ user.location }}</p>
                                 </div>
                             </div>
                         {% endif %}
-                        {% if current_user.date_of_birth %}
+                        {% if user.date_of_birth %}
                             <div class="col-md-6">
                                 <div class="media">
                                     <label>Birthday</label>
-                                    <p>{{ current_user.date_of_birth }}</p>
+                                    <p>{{ user.date_of_birth }}</p>
                                 </div>
                             </div>
                         {% endif %}

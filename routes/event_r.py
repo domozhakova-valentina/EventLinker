@@ -30,18 +30,24 @@ def root(page=1):
         session['search_text'] = ""
         text_search = ''
 
+    if "types_event_search" in session:
+        type_search = session['types_event_search']  # хранит запрос видов событий
+    else:
+        session['types_event_search'] = []
+        type_search = []
+
     if form.validate_on_submit():
         text_search = form.search.data
         session['search_text'] = text_search
+        type_search = session['types_event_search'] = form.get_selected_event_types()
 
-    selected_types = form.get_selected_event_types()  # список типов событий, которые выбрал пользователь
-    if selected_types is None and text_search.strip() is None:
+    if type_search is None and text_search.strip() is None:
         # если ничего не отмечено и не введено, то отображаем все события
         a_events = db_sess.query(Event).join(Event.user).order_by(Event.num_likes.desc())  # сортировка по кол-ву лайков
     else:
         a_events = db_sess.query(Event).join(Event.user).filter(
             ((Event.mini_description.like(f'%{text_search}%')) | (User.name.like(f'%{text_search}%'))) &
-            (Event.event_type.in_(selected_types))  # поиск по вхождению в мини-описание или имя автора, также сортировка по кол-ву лайков
+            (Event.event_type.in_(type_search))  # поиск по вхождению в мини-описание или имя автора, также сортировка по кол-ву лайков
         ).order_by(Event.num_likes.desc())
 
     pagination = Pagination(a_events, page, 9)  # на каждой странице по 9 постов

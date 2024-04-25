@@ -21,31 +21,59 @@
                     </button>
                     <div class="collapse" id="eventTypeCollapse">
                         <div class="form-check">
-                            {{ form.concert(class="form-check-input") }}
+                            {% if form.concert.label.text.lower() in session['types_event_search']%}
+                                {{ form.concert(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.concert(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.concert.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.excursion(class="form-check-input") }}
+                            {% if form.excursion.label.text.lower() in session['types_event_search']%}
+                                {{ form.excursion(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.excursion(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.excursion.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.sports(class="form-check-input") }}
+                            {% if form.sports.label.text.lower() in session['types_event_search']%}
+                                {{ form.sports(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.sports(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.sports.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.for_kids(class="form-check-input") }}
+                            {% if form.for_kids.label.text.lower() in session['types_event_search']%}
+                                {{ form.for_kids(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.for_kids(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.for_kids.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.attractions(class="form-check-input") }}
+                            {% if form.attractions.label.text.lower() in session['types_event_search']%}
+                                {{ form.attractions(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.attractions(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.attractions.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.studies(class="form-check-input") }}
+                            {% if form.studies.label.text.lower() in session['types_event_search']%}
+                                {{ form.studies(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.studies(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.studies.label.text }}</label>
                         </div>
                         <div class="form-check">
-                            {{ form.other(class="form-check-input") }}
+                            {% if form.other.label.text.lower() in session['types_event_search']%}
+                                {{ form.other(class="form-check-input", checked="true") }}
+                            {% else %}
+                                {{ form.other(class="form-check-input") }}
+                            {% endif %}
                             <label class="form-check-label">{{ form.other.label.text }}</label>
                         </div>
                     </div>
