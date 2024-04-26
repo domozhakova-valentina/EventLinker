@@ -41,7 +41,7 @@ def root(page=1):
         session['search_text'] = text_search
         type_search = session['types_event_search'] = form.get_selected_event_types()
 
-    if type_search is None and text_search.strip() is None:
+    if not type_search and not text_search.strip():
         # если ничего не отмечено и не введено, то отображаем все события
         a_events = db_sess.query(Event).join(Event.user).order_by(Event.num_likes.desc())  # сортировка по кол-ву лайков
     else:
